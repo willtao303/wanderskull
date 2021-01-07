@@ -86,7 +86,7 @@ class PlayState():
             player.render(screen, (h,w))
             self.enemy.render(screen, offset)
 
-            for i in range(max(0, self.active-1), min(self.active+1, len(roomlist))):
+            for i in range(max(0, self.active-1), min(self.active+2, len(roomlist))):
                 roomlist[i].render(screen, offset, (-20, w+20, -20, h+20))
 
             mini_map_walls = roomlist[self.active].walls
