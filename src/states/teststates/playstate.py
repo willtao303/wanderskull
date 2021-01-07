@@ -37,7 +37,7 @@ class PlayState():
             if pygame.K_SPACE in keyspressed:
                 self.paused = not self.paused
             if pygame.K_h in keyspressed:
-                print(room.printwithplayer(player))
+                print(Room.printwithplayer(player))
             if pygame.K_ESCAPE in keyspressed:
                 self.changeTo = "start"
         
