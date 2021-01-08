@@ -17,7 +17,7 @@ zipline studios :DD
 
 ## Current Bug List
 
-[comment]: # (the description can be longer than this v)
+<!-- (the description can be longer than the table vvvv) -->
 | Bug         | Description                           | Importance |
 | ----------- | ------------------------------------- | ---------- |
 | Example     | Causes player to cry.                 | \*         |
