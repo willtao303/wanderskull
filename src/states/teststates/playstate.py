@@ -6,7 +6,7 @@ from src.tests.rooms.room import Room
 from src.mouse import cursor
 import pygame
 
-roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4), (12*(i+1), 5), (12*(i+1), 6),(12*i, 4), (12*i, 5), (12*i, 6)], (0, max(i*12, 0))) for i in range(25)]
+roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4),(12*(i+1), 5), (12*(i+1), 6),(12*(i+1), 7),(12*(i+1), 8),(12*i, 4), (12*i, 5), (12*i, 6),(12*i, 7),(12*i, 8)], (0, max(i*12, 0))) for i in range(25)]
 #roomlist = [
     #Room((12,12), [(3,3),(3,4),(4,3),(4,4),(6,10),(7,10),(8,10),(9,10),(10,10),(10,9), (10,8),(10,7), (10,6)], [(5,12),(6,12)], (0,0)),
     #Room((12,24), [], [(5,12),(6,12)], (0,12))
@@ -74,9 +74,14 @@ class PlayState():
                 screen.blit(square, (1075+5*((coord[0]+25)//50 - player.x//50), 75+5*((coord[1]+25)//50 - player.y//50)))
         
         square.fill((150, 150, 150))
-        for coord in wall:
-            if pf.distbetween(coord, (player.x//50,player.y//50)) < 14:
-                screen.blit(square, (1075+5*(coord[0] - player.x//50), 75+5*(coord[1] - player.y//50)))
+        if roomlist[self.active].doorsclosed == True:
+            for coord in wall:
+                if pf.distbetween(coord, (player.x//50,player.y//50)) < 14:
+                    screen.blit(square, (1075+5*(coord[0] - player.x//50), 75+5*(coord[1] - player.y//50)))
+        else:
+            for coord in wall:
+                if pf.distbetween(coord, (player.x//50,player.y//50)) < 14 and not(coord in roomlist[self.active].doors):
+                    screen.blit(square, (1075+5*(coord[0] - player.x//50), 75+5*(coord[1] - player.y//50)))
         
     
     def render(self, screen, h, w):

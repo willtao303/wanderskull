@@ -25,6 +25,7 @@ class Room():
                 self.staticwalls.append((i,self.spx))
             if not (i,self.w) in self.doors:
                 self.staticwalls.append((i,self.w))
+                
         self.walls = self.staticwalls + self.doors
         #the graph has to be converted to from a grid first
         for i in range(self.spy,self.h):
