@@ -14,3 +14,10 @@ hi c'est previouslynamedjeff waddup my guy
 zipline studios :DD
 
 :))
+
+## Current Bug List
+
+[comment]: # (the description can be longer than this v)
+| Bug         | Description                           | Importance |
+| ----------- | ------------------------------------- | ---------- |
+| Example     | Causes player to cry.                 | \*         |
