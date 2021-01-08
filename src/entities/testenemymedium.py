@@ -62,23 +62,23 @@ class Enemy():
 
     def goto(self, point): #moves self.speed pixels towards point
         change = [0,0]
-        if self.speed > 5:
-            relx, rely = point[0]-self.x-25, point[1]-self.y-25
-            angle = math.degrees(-math.atan2(rely, relx))
-            chx, chy = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
-        else:
-            if self.x+25 <= point[0] and point[0] <= self.x+25:
-                chx = 0
-            elif point[0] > self.x+25:
-                chx = 1
-            elif point[0] < self.x+25:
-                chx = -1
-            if self.y+25 <= point[1] and point[1] <= self.y+25:
-                chy = 0
-            elif point[1] > self.y+25:
-                chy = 1
-            elif point[1] < self.y+25:
-                chy = -1
+        #if self.speed > 5:
+        relx, rely = point[0]-self.x-25, point[1]-self.y-25
+        angle = math.degrees(-math.atan2(rely, relx))
+        chx, chy = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
+##        else:
+##            if self.x+25 <= point[0] and point[0] <= self.x+25:
+##                chx = 0
+##            elif point[0] > self.x+25:
+##                chx = 1
+##            elif point[0] < self.x+25:
+##                chx = -1
+##            if self.y+25 <= point[1] and point[1] <= self.y+25:
+##                chy = 0
+##            elif point[1] > self.y+25:
+##                chy = 1
+##            elif point[1] < self.y+25:
+##                chy = -1
 
         if (self.canGo["up"] and chy < 0) or (self.canGo["down"] and chy > 0):
             change[1] = chy
@@ -87,7 +87,50 @@ class Enemy():
         self.rect.move_ip(tuple(change))
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
 
+    def antiwall(self, room):
+        if abs(self.nextpos[0]-self.x) > abs(self.nextpos[1]-self.y): # horizontal to next pos
+            way = [0,0]
+            if self.x < self.nextpos[0]:
+                if (int((self.x+25)/50)+1,int(self.y/50)) in room.walls:
+                    way[0] = 1
+                if (int((self.x+25)/50)+1,int((self.y+50)/50)) in room.walls:
+                    way[1] = 1
+            else:
+                if (int((self.x+25)/50)-1,int(self.y/50)) in room.walls:
+                    way[0] = -1
+                if (int((self.x+25)/50)-1,int((self.y+50)/50)) in room.walls:
+                    way[1] = -1
+                
+            if way[0] != way[1]:
+                if way[0] == 0:
+                    self.rect.y -= 1
+                else:
+                    self.rect.y += 1
+            else:
+                pass
+                
+        else:
+            way = [0,0]
+            if self.y < self.nextpos[0]:
+                if (int(self.x/50),int((self.y+25)/50)+1) in room.walls:
+                    way[0] = 1
+                if (int((self.x+50)/50),int((self.y+25)/50)+1) in room.walls:
+                    way[1] = 1
+            else:
+                if (int(self.x/50),int((self.y+25)/50)-1) in room.walls:
+                    way[0] = -1
+                if (int((self.x+50)/50),int((self.y+25)/50)-1) in room.walls:
+                    way[1] = -1
+                
+            if way[0] != way[1]:
+                if way[0] == 0:
+                    self.rect.x -= 1
+                else:
+                    self.rect.x += 1
+
+
     def update(self, room, ppos):
+        self.antiwall(room)
         if not self.foundplayer:
             # MEDIOCRE ISSUE: ENEMY FOLLOWS LIST FOR A FEW SECONDS BEFORE COMPLETELY STOPPING FOR SOME REASON
             # POSSIBLE FIX: ????? 
