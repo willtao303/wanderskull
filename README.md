@@ -17,5 +17,5 @@ zipline studios :DD
 
 <!-- (the description can be longer than the table vvvv) -->
 | Bug         | Description                           | Importance |
-| ----------- | ------------------------------------- | ---------- |
+| :---------- | :------------------------------------ | ---------- |
 | Example     | Causes player to cry.                 | \*\*\*     |
