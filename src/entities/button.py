@@ -17,8 +17,6 @@ class Button():
         self.pos = position  # pos = (width, height) <- (x, y) ?
 
         self.rect = pygame.Rect(self.pos, self.dims)
-        self.rect.x = int(self.pos[0] - self.w/2)
-        self.rect.y = int(self.pos[1] - self.h/2)
 
         self.color = (30, 30, 35)
 
@@ -31,7 +29,10 @@ class Button():
 
     def update(self, *qargs):  # note: *qargs is unused ?
         """Handles button presses and hovering."""
+        self.rect.x = int(self.pos[0] - self.w/2)
+        self.rect.y = int(self.pos[1] - self.h/2)
         self.color = (30, 30, 35)
+        
         if cursor.rect.colliderect(self.rect):
             self.color = (50, 50, 70)
             if cursor.Lclick:
