@@ -16,6 +16,8 @@ zipline studios :DD
 ## Current list of (known) bugs
 
 <!-- (the description can be longer than the table vvvv) -->
-| Bug         | Description                           | Importance |
-| :---------- | :------------------------------------ | ---------- |
-| Example     | Causes player to cry.                 | \*\*\*     |
+| Bug         | Description                             | Importance |
+| ----------- | --------------------------------------- | ---------- |
+| Example     | Causes player to cry.                   | \*\*\*     |
+| Exit Crash  | Exiting the game crashes it on re-entry | \*\*\*\*\* |
+| Doorways    | for shared doorways, only one side will open, leaving it still blocked | \*\*\*\*  |
