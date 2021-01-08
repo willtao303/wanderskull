@@ -6,7 +6,7 @@ from src.tests.rooms.room import Room
 from src.mouse import cursor
 import pygame
 
-roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4), (12*(i+1), 5), (12*(i+1), 6),(12*i, 4), (12*i, 5), (12*i, 6)], (0, max(i*12, 0))) for i in range(25)]
+roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4),(12*(i+1), 5), (12*(i+1), 6),(12*(i+1), 7),(12*(i+1), 8),(12*i, 4), (12*i, 5), (12*i, 6),(12*i, 7),(12*i, 8)], (0, max(i*12, 0))) for i in range(25)]
 #roomlist = [
     #Room((12,12), [(3,3),(3,4),(4,3),(4,4),(6,10),(7,10),(8,10),(9,10),(10,10),(10,9), (10,8),(10,7), (10,6)], [(5,12),(6,12)], (0,0)),
     #Room((12,24), [], [(5,12),(6,12)], (0,12))
@@ -91,9 +91,9 @@ class PlayState():
 
             mini_map_walls = roomlist[self.active].walls
             if self.active > 0:
-                mini_map_walls = mini_map_walls + roomlist[self.active-1].walls
+                mini_map_walls = mini_map_walls + roomlist[self.active-1].staticwalls#cause only one room's doors will closed at a time
             if self.active < len(roomlist)-1:
-                mini_map_walls = mini_map_walls + roomlist[self.active+1].walls
+                mini_map_walls = mini_map_walls + roomlist[self.active+1].staticwalls
             self.minimap_builder(screen,[(self.enemy.x, self.enemy.y)], mini_map_walls)
 
  
