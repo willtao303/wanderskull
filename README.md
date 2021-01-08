@@ -19,5 +19,5 @@ zipline studios :DD
 | Bug         | Description                             | Importance |
 | ----------- | --------------------------------------- | ---------- |
 | Example     | Causes player to cry.                   | \*\*\*     |
-| Exit Crash  | Exiting the game crashes it on re-enter | \*\*\*\*\* |
+| Exit Crash  | Exiting the game crashes it on re-entry | \*\*\*\*\* |
 | Doorways    | for shared doorways, only one side will open, leaving it still blocked | \*\*\*\*  |
