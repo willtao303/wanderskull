@@ -6,6 +6,10 @@ src/__pycache__/
 # VSCode files
 .vscode/
 
+# Pycache files
+
+*.pyc
+
 # C extensions
 *.so
 
