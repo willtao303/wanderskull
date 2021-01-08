@@ -20,6 +20,7 @@ class PlayState():
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
         self.acte = acte = (roomlist[0].w, roomlist[0].h)
+        self.door_ignore = set(roomlist[0].doors) #for minimap since each two consecutive rooms share a doorway
 
     def enter(self):
         player.firstframe()
@@ -50,10 +51,12 @@ class PlayState():
                 self.active += 1
                 self.acts = (roomlist[self.active].spx, roomlist[self.active].spy)
                 self.acte = (roomlist[self.active].w, roomlist[self.active].h)
+                self.door_ignore = set(roomlist[self.active].doors)
             elif self.acts[1] > int(player.x/50) and self.active > 0:
                 self.active -= 1
                 self.acts = (roomlist[self.active].spx, roomlist[self.active].spy)
                 self.acte = (roomlist[self.active].w, roomlist[self.active].h)
+                self.door_ignore = set(roomlist[self.active].doors)
 
             roomlist[self.active].update()
             roomlist[self.active].roomcollision(self.enemy)
@@ -80,7 +83,7 @@ class PlayState():
                     screen.blit(square, (1075+5*(coord[0] - player.x//50), 75+5*(coord[1] - player.y//50)))
         else:
             for coord in wall:
-                if pf.distbetween(coord, (player.x//50,player.y//50)) < 14 and not(coord in roomlist[self.active].doors):
+                if pf.distbetween(coord, (player.x//50,player.y//50)) < 14 and not(coord in self.door_ignore):
                     screen.blit(square, (1075+5*(coord[0] - player.x//50), 75+5*(coord[1] - player.y//50)))
         
     
