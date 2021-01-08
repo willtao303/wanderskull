@@ -19,6 +19,7 @@ class attacker():
             {"id":"radial", "attacklen":20, "image":pygame.image.load('src/tests/images/wepons/bombs.png'),"range":80}]
         self.slotnumber = 0
         self.itemframe = pygame.image.load('src/tests/images/wepons/select.png')
+        #self.attackdirection = 0#enemy kb direction
 
     def firstframe(self):
         self.itemframe = pygame.transform.scale(self.itemframe,(144, 108))
@@ -58,7 +59,7 @@ class attacker():
                     perpendicular += 90
                 perpendicular = math.radians(perpendicular)
                 spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
-                for i in range(-3, 4):
+                for i in range(-3, 4):#-3,4
                     self.attacks.append(pygame.Rect((self.body.x+25+self.points["chx"]+(i*spacex), self.body.y+25+self.points["chy"]+(i*spacey)), (10,10)))
             
             elif self.inventory[self.slotnumber]["id"] == "spear":
@@ -102,6 +103,8 @@ class dumbenemy():
         self.invincible = 0
         self.dead = False
         self.collide = None
+        self.knockback = 0#knockback speed
+        self.kbangle = 0#knockback angle
 
     def update(self, player):
 
@@ -109,18 +112,28 @@ class dumbenemy():
             if not self.invincible:
                 self.hp -= 1
                 self.invincible = 1
-        else:
-            self.invincible = 0
 
-        if self.collide != None:
-            angle = math.atan2(self.rect.y-self.collide.rect.y, self.rect.x-self.collide.rect.x)
-            chx, chy = math.cos(angle)*2, math.sin(angle)*2
-            self.rect.move_ip(chx, chy)
-        if not(math.sqrt((self.rect.x-player.body.x)**2 + (self.rect.y-player.body.y)**2) <= 70):
-            angle = math.atan2(player.body.y-self.rect.y, player.body.x-self.rect.x)
-            chx, chy = math.cos(angle)*self.speed, math.sin(angle)*self.speed
-            self.rect.move_ip(int(chx), int(chy))
+                self.kbangle = player.points["angle"]# knockback code  - finds hitting angle at exact moment
+                #when someone clicks
+                self.knockback = 10#knockback speed
+
+        elif not self.knockback:#invincible until knockback is over
+            self.invincible = 0
         
+        if not self.knockback:#if its not being knocked back
+            if self.collide != None:
+                angle = math.atan2(self.rect.y-self.collide.rect.y, self.rect.x-self.collide.rect.x)
+                chx, chy = math.cos(angle)*2, math.sin(angle)*2
+                self.rect.move_ip(chx, chy)
+            if not(math.sqrt((self.rect.x-player.body.x)**2 + (self.rect.y-player.body.y)**2) <= 70):
+                angle = math.atan2(player.body.y-self.rect.y, player.body.x-self.rect.x)
+                chx, chy = math.cos(angle)*self.speed, math.sin(angle)*self.speed
+                self.rect.move_ip(int(chx), int(chy))
+        else:
+            chx, chy = math.cos(self.kbangle)*self.knockback, math.sin(self.kbangle)*self.knockback
+            self.knockback-=1 #sorry, its linear but works
+            self.rect.move_ip(chx, chy)
+
         if self.hp <= 0:
             self.dead = True
 
