@@ -2,6 +2,7 @@ import src.entities.algorithms.pathfind as pf
 import pygame
 import math
 
+
 reset = 0
 
 class Enemy():

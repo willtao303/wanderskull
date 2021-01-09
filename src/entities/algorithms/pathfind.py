@@ -2,7 +2,8 @@ from math import sqrt
 
 
 def distbetween(m, n):
-    return sqrt((m[0]-n[0])**2+(m[1]-n[1])**2)
+    """Returns the (float) distance between 2 points."""
+    return sqrt((m[0]-n[0])**2 + (m[1]-n[1])**2)
 
 
 def createmap(w, h):
@@ -11,6 +12,9 @@ def createmap(w, h):
         m.append([])
         for j in range(w):
             m[i].append(0)
+    
+    # slightly faster method? idk how much faster
+    # m = [[0 for j in range(w)] for i in range(h)]
 
     for i in range(w):
         print(i)
@@ -47,7 +51,7 @@ def DistPathfind(graph, startpos, endpos):
                 vis.add(i)
                 dist[key][i] = dist[i][key]
 
-        nei = [(key, 0)]  # start at ndoe
+        nei = [(key, 0)]  # start at node
         # nei = [((x,y), dist)]  nei[0][0]=(x,y), nei[0][0][0] = x
         vis.add(key)
         dist[key][key] = 0
