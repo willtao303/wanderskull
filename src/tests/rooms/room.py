@@ -32,10 +32,15 @@ class Room():
                 if not (i,j) in self.walls:
                     self.graph[(i,j)] = []
         for i in self.graph.keys():
-            for j in [(1, 1), (-1, -1), (0, 1), (1, 0), (-1, 0), (0, -1), (-1, 1), (1, -1)]:
+            for j in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
                 new = (i[0]+j[0], i[1]+j[1])
                 if new in self.graph.keys():
                     self.graph[i].append(new)
+            for j in [(1,1), (-1,1), (-1,-1),(1,-1)]:
+                new = (i[0]+j[0], i[1]+j[1])
+                if new in self.graph.keys():
+                    if (i[0]+j[0], i[0]) in self.graph[i] and (i[0], i[0]+j[1]) in self.graph[i]:
+                        self.graph[i].append(new)
 
     def update(self):
         if self.doorsclosed:
