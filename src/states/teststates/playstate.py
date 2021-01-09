@@ -81,6 +81,9 @@ class PlayState():
     
     def render(self, screen, h, w):
         offset = (player.x+25-w/2-cursor.mouseoffset[0], player.y+25-h/2-cursor.mouseoffset[1])
+
+        pygame.draw.line(screen, (0,255,0), ((self.enemy.x+24-offset[0]), (self.enemy.y+24-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
+        pygame.draw.line(screen, (0,255,255), ((self.enemy.x-offset[0]), (self.enemy.y-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
         if not self.paused:
             roomlist[self.active].autocorrections(player)
             player.render(screen, (h,w))

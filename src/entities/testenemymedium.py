@@ -201,12 +201,12 @@ class Enemy():
                 self.nextpos = self.path[ind]
                 self.path = self.path[ind:len(self.path)]
 
-        test = pygame.mouse.get_pos()
+        test = ppos
         if room.inline(test, (self.x+25,self.y+25)):
-            self.color = (0,255,0)
+            self.sprite.fill((0,255,0))
         #     self.goto(test)
         else:
-            self.color = (255,0,0)
+            self.sprite.fill((255,0,0))
 
         if self.x == self.rect.x and self.y == self.rect.y:
             if pf.distbetween((self.x,self.y),ppos) > self.range:
