@@ -19,7 +19,13 @@ class attacker():
             {"id":"radial", "attacklen":20, "image":pygame.image.load('src/tests/images/wepons/bombs.png'),"range":80}]
         self.slotnumber = 0
         self.itemframe = pygame.image.load('src/tests/images/wepons/select.png')
-        #self.attackdirection = 0#enemy kb direction
+        self.max_health = 100
+        self.health =  100
+        self.health_bar = pygame.Surface((400, 30))
+        self.health_bar_show = pygame.Surface((400, 30))
+        
+        self.health_bar.fill((0,255,0))
+        self.health_bar_show.fill((255, 0 ,0))
 
     def firstframe(self):
         self.itemframe = pygame.transform.scale(self.itemframe,(144, 108))
@@ -42,6 +48,9 @@ class attacker():
             self.points["angle"] = math.atan2(cursor.y-self.body.y, cursor.x-self.body.x)
             self.points["chx"], self.points["chy"] = math.cos(self.points["angle"])*self.inventory[self.slotnumber]["range"], math.sin(self.points["angle"])*self.inventory[self.slotnumber]["range"]
             if cursor.Lclick and self.cooldown == 0:
+                self.health -= 5
+                self.health_bar = pygame.Surface((int(400*(self.health/self.max_health)),30))
+                self.health_bar.fill((0, 255, 0))
                 self.attackcounter += 1
             self.slotnumber += cursor.scroll
             if self.slotnumber >= len(self.inventory):
@@ -89,6 +98,9 @@ class attacker():
         if self.inventory[self.slotnumber]["image"] != None:
             temp = self.inventory[self.slotnumber]["image"]
             screen.blit(pygame.transform.scale(temp, (temp.get_width()*3,temp.get_height()*3)), (w - int(self.itemframe.get_width()/2)-int(temp.get_width()*1.6), h-self.itemframe.get_height()))
+        screen.blit(self.health_bar_show, (400, 550))
+        screen.blit(self.health_bar, (400, 550))
+        #self.health_bar_show.blit(self.health_bar, (0,0))
 
 class dumbenemy():
     def __init__(self):
@@ -199,3 +211,4 @@ class AttackState():
         #if not len(self.enemies):
         for i in self.enemies:
             i.draw(screen)
+        
