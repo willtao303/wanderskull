@@ -1,6 +1,7 @@
 import pygame
 import math
 import random as rand
+import src.entities.algorithms.pathfind as pf
 from src.mouse import cursor
 
 
@@ -27,62 +28,75 @@ class attacker():
         self.health_bar.fill((0,255,0))
         self.health_bar_show.fill((255, 0 ,0))
 
+        self.knockback = 0
+        self.kbangle = 0
+
     def firstframe(self):
         self.itemframe = pygame.transform.scale(self.itemframe,(144, 108))
 
-    def update(self, keysdown):
+    def update(self, keysdown, enemy_attacks):
+        
+        ind = self.body.collidelist(enemy_attacks)
+        if ind != -1 and not self.knockback:
+            self.knockback = 10
+            self.kbangle = math.atan2(self.body.y-enemy_attacks[ind].y, self.body.x-enemy_attacks[ind].x)
+            self.health -= 5#remove later
+            self.health_bar = pygame.Surface((int(400*(self.health/self.max_health)),30))
+            self.health_bar.fill((0, 255, 0))
+        
+        if self.knockback == 0:
+            moveVectorx = 0
+            moveVectory = 0
+            if (keysdown[pygame.K_DOWN] or keysdown[pygame.K_s]):
+                moveVectory = self.speed
+            if (keysdown[pygame.K_UP] or keysdown[pygame.K_w]):
+                moveVectory = -self.speed
+            if (keysdown[pygame.K_LEFT] or keysdown[pygame.K_a]):
+                moveVectorx = -self.speed
+            if (keysdown[pygame.K_RIGHT] or keysdown[pygame.K_d]):
+                moveVectorx = self.speed
+            self.body.move_ip(moveVectorx, moveVectory)
 
-        moveVectorx = 0
-        moveVectory = 0
-        if (keysdown[pygame.K_DOWN] or keysdown[pygame.K_s]):
-            moveVectory = self.speed
-        if (keysdown[pygame.K_UP] or keysdown[pygame.K_w]):
-            moveVectory = -self.speed
-        if (keysdown[pygame.K_LEFT] or keysdown[pygame.K_a]):
-            moveVectorx = -self.speed
-        if (keysdown[pygame.K_RIGHT] or keysdown[pygame.K_d]):
-            moveVectorx = self.speed
-        self.body.move_ip(moveVectorx, moveVectory)
+            if not self.attackcounter:
+                self.points["angle"] = math.atan2(cursor.y-self.body.y, cursor.x-self.body.x)
+                self.points["chx"], self.points["chy"] = math.cos(self.points["angle"])*self.inventory[self.slotnumber]["range"], math.sin(self.points["angle"])*self.inventory[self.slotnumber]["range"]
+                if cursor.Lclick and self.cooldown == 0:
+                    self.attackcounter += 1
+                self.slotnumber += cursor.scroll
+                if self.slotnumber >= len(self.inventory):
+                    self.slotnumber = 0
+                elif self.slotnumber < 0:
+                    self.slotnumber = len(self.inventory)-1
 
-        if not self.attackcounter:
-            self.points["angle"] = math.atan2(cursor.y-self.body.y, cursor.x-self.body.x)
-            self.points["chx"], self.points["chy"] = math.cos(self.points["angle"])*self.inventory[self.slotnumber]["range"], math.sin(self.points["angle"])*self.inventory[self.slotnumber]["range"]
-            if cursor.Lclick and self.cooldown == 0:
-                self.health -= 5
-                self.health_bar = pygame.Surface((int(400*(self.health/self.max_health)),30))
-                self.health_bar.fill((0, 255, 0))
-                self.attackcounter += 1
-            self.slotnumber += cursor.scroll
-            if self.slotnumber >= len(self.inventory):
-                self.slotnumber = 0
-            elif self.slotnumber < 0:
-                self.slotnumber = len(self.inventory)-1
-
-        else:
-            self.attacks = []
-            if self.inventory[self.slotnumber]["id"] == "sword":
-                perpendicular = math.degrees(self.points["angle"])
-                if perpendicular > 0:
-                    perpendicular -= 90
-                else:
-                    perpendicular += 90
-                perpendicular = math.radians(perpendicular)
-                spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
-                for i in range(-3, 4):#-3,4
-                    self.attacks.append(pygame.Rect((self.body.x+25+self.points["chx"]+(i*spacex), self.body.y+25+self.points["chy"]+(i*spacey)), (10,10)))
-            
-            elif self.inventory[self.slotnumber]["id"] == "spear":
-                for i in range(1,6):
-                    a = int(self.inventory[self.slotnumber]["range"]/5)
-                    chx, chy = math.cos(self.points["angle"])*(a*i), math.sin(self.points["angle"])*(a*i)
-                    self.attacks.append(pygame.Rect((self.body.x+15+chx, self.body.y+15+chy), (10,10)))
-            elif self.inventory[self.slotnumber]["id"] == "hammer":
-                pass
-            self.attackcounter += 1
-            if self.attackcounter >= self.inventory[self.slotnumber]["attacklen"]:
+            else:
                 self.attacks = []
-                self.attackcounter = 0
-                self.cooldown = 20
+                if self.inventory[self.slotnumber]["id"] == "sword":
+                    perpendicular = math.degrees(self.points["angle"])
+                    if perpendicular > 0:
+                        perpendicular -= 90
+                    else:
+                        perpendicular += 90
+                    perpendicular = math.radians(perpendicular)
+                    spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
+                    for i in range(-3, 4):#-3,4
+                        self.attacks.append(pygame.Rect((self.body.x+25+self.points["chx"]+(i*spacex), self.body.y+25+self.points["chy"]+(i*spacey)), (10,10)))
+                
+                elif self.inventory[self.slotnumber]["id"] == "spear":
+                    for i in range(1,6):
+                        a = int(self.inventory[self.slotnumber]["range"]/5)
+                        chx, chy = math.cos(self.points["angle"])*(a*i), math.sin(self.points["angle"])*(a*i)
+                        self.attacks.append(pygame.Rect((self.body.x+15+chx, self.body.y+15+chy), (10,10)))
+                elif self.inventory[self.slotnumber]["id"] == "hammer":
+                    pass
+                self.attackcounter += 1
+                if self.attackcounter >= self.inventory[self.slotnumber]["attacklen"]:
+                    self.attacks = []
+                    self.attackcounter = 0
+                    self.cooldown = 20
+        else:
+            chx, chy = math.cos(self.kbangle)*self.knockback, math.sin(self.kbangle)*self.knockback
+            self.knockback-=1 #sorry, its linear but works
+            self.body.move_ip(chx, chy)
 
         if self.cooldown > 0:
             self.cooldown -= 1
@@ -112,27 +126,47 @@ class dumbenemy():
         self.hp = 5
         self.hpbar = pygame.Surface((50,10))
         self.hpshow = pygame.Surface((50,10))
-        self.invincible = 0
         self.dead = False
         self.collide = None
         self.knockback = 0#knockback speed
         self.kbangle = 0#knockback angle
+        self.enemy_attack = []
+        self.attack_counter = 0
+        self.cooldown = 0
+        self.points = {"chx":0, "chy":0, "angle": 0}
 
     def update(self, player):
 
-        if self.rect.collidelist(player.attacks) != -1:
-            if not self.invincible:
-                self.hp -= 1
-                self.invincible = 1
-
-                self.kbangle = player.points["angle"]# knockback code  - finds hitting angle at exact moment
-                #when someone clicks
-                self.knockback = 10#knockback speed
-
-        elif not self.knockback:#invincible until knockback is over
-            self.invincible = 0
+        if self.rect.collidelist(player.attacks) != -1 and not self.knockback:
+            self.hp -= 1
+            self.kbangle = player.points["angle"]# knockback code  - finds hitting angle at exact moment
+            #when someone clicks
+            self.knockback = 10#knockback speed
         
         if not self.knockback:#if its not being knocked back
+
+            if pf.distbetween((self.rect.x, self.rect.y),(player.body.x, player.body.y)) < 100 and self.cooldown == 0 and self.attack_counter == 0:
+                self.attack_counter += 1
+                self.points["angle"] = math.atan2(player.body.y-self.rect.y, player.body.x-self.rect.x)
+                self.points["chx"] = math.cos(self.points["angle"])*50#20 is the range
+                self.points["chy"] = math.sin(self.points["angle"])*50
+            elif self.attack_counter > 0:
+                self.enemy_attack = []
+                perpendicular = math.degrees(self.points["angle"])
+                if perpendicular > 0:
+                    perpendicular -= 90
+                else:
+                    perpendicular += 90
+                perpendicular = math.radians(perpendicular)
+                spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
+                for i in range(-3, 4):#-3,4
+                    self.enemy_attack.append(pygame.Rect((self.rect.x+25+self.points["chx"]+(i*spacex), self.rect.y+25+self.points["chy"]+(i*spacey)), (10,10)))
+                self.attack_counter += 1
+                if self.attack_counter > 14: #can change 14
+                    self.attack_counter = 0
+                    self.cooldown = 100
+                    self.enemy_attack = []
+
             if self.collide != None:
                 angle = math.atan2(self.rect.y-self.collide.rect.y, self.rect.x-self.collide.rect.x)
                 chx, chy = math.cos(angle)*2, math.sin(angle)*2
@@ -149,8 +183,13 @@ class dumbenemy():
         if self.hp <= 0:
             self.dead = True
 
+        if self.cooldown > 0:
+            self.cooldown -= 1
+
     def draw(self, screen):
         pygame.draw.rect(screen, (255, 0, 0), self.rect)
+        for i in self.enemy_attack:
+            pygame.draw.rect(screen, (0, 0, 255), i)
         screen.blit(self.hpbar,(self.rect.x, self.rect.y-15))
         self.hpbar.fill((255,255,255))
         self.hpshow = pygame.Surface((self.hp*10,10))
@@ -163,7 +202,7 @@ class AttackState():
         self.changeTo = None
         self.attacker = attacker()
         self.enemies = []
-        self.enemiesattacked = []
+        self.enemiesattacked = []#stores enemy attacks
         self.spawntimer = 0
 
     def enter(self):
@@ -184,7 +223,7 @@ class AttackState():
             if pygame.K_RETURN in keyspressed:
                 self.enemies = []
 
-        self.attacker.update(keysdown)
+        self.attacker.update(keysdown, self.enemiesattacked)
 
         for i in self.enemies:
             i.collide = None
@@ -193,16 +232,18 @@ class AttackState():
                     if i.rect.colliderect(j.rect):
                         i.collide = j
                         break
-
+        
+        self.enemiesattacked = []
         for i in range(0, len(self.enemies))[::-1]:
             if not self.enemies[i].dead:
                 self.enemies[i].update(self.attacker)
+                self.enemiesattacked = self.enemiesattacked + self.enemies[i].enemy_attack
             else:
                 self.enemies.pop(i)
 
         if self.spawntimer <= 0:
             self.enemies.append(dumbenemy())
-            self.spawntimer = rand.randint(180, 200)
+            self.spawntimer = rand.randint(360, 400)#180, 200
         self.spawntimer -= 1
 
     def render(self, screen, h, w):
