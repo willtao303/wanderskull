@@ -31,6 +31,9 @@ class attacker():
         self.knockback = 0
         self.kbangle = 0
 
+        self.health_loss = 0
+        self.health_loss_bar = None
+
     def firstframe(self):
         self.itemframe = pygame.transform.scale(self.itemframe,(144, 108))
 
@@ -40,9 +43,12 @@ class attacker():
         if ind != -1 and not self.knockback:
             self.knockback = 10
             self.kbangle = math.atan2(self.body.y-enemy_attacks[ind].y, self.body.x-enemy_attacks[ind].x)
-            self.health -= 5#remove later
+            self.health -= 5
+            self.health_loss = 5
+            self.health_loss_bar = pygame.Surface((20, 30))#change bounds
             self.health_bar = pygame.Surface((int(400*(self.health/self.max_health)),30))
             self.health_bar.fill((0, 255, 0))
+            self.health_loss_bar.fill((192, 192, 192))
         
         if self.knockback == 0:
             moveVectorx = 0
@@ -96,6 +102,9 @@ class attacker():
         else:
             chx, chy = math.cos(self.kbangle)*self.knockback, math.sin(self.kbangle)*self.knockback
             self.knockback-=1 #sorry, its linear but works
+            self.health_loss -= 0.5 #cause knockback is 10 frames
+            self.health_loss_bar = pygame.Surface((int(self.health_loss/5* 20),30))#change bounds
+            self.health_loss_bar.fill((192, 192, 192))
             self.body.move_ip(chx, chy)
 
         if self.cooldown > 0:
@@ -114,6 +123,8 @@ class attacker():
             screen.blit(pygame.transform.scale(temp, (temp.get_width()*3,temp.get_height()*3)), (w - int(self.itemframe.get_width()/2)-int(temp.get_width()*1.6), h-self.itemframe.get_height()))
         screen.blit(self.health_bar_show, (400, 550))
         screen.blit(self.health_bar, (400, 550))
+        if self.health_loss > 0:
+            screen.blit(self.health_loss_bar, (int(400*(self.health/self.max_health))+400, 550))#change bounds
         #self.health_bar_show.blit(self.health_bar, (0,0))
 
 class dumbenemy():
