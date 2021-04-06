@@ -85,12 +85,13 @@ class PlayState():
         pygame.draw.line(screen, (0,255,0), ((self.enemy.x+24-offset[0]), (self.enemy.y+24-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
         pygame.draw.line(screen, (0,255,255), ((self.enemy.x-offset[0]), (self.enemy.y-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
         if not self.paused:
-            roomlist[self.active].autocorrections(player)
-            player.render(screen, (h,w))
-            self.enemy.render(screen, offset)
 
             for i in range(max(0, self.active-1), min(self.active+2, len(roomlist))):
                 roomlist[i].render(screen, offset, (-20, w+20, -20, h+20))
+            
+            roomlist[self.active].autocorrections(player) #switched
+            player.render(screen, (h,w), set(roomlist[self.active].staticwalls))
+            self.enemy.render(screen, offset)
 
             mini_map_walls = roomlist[self.active].walls
             if self.active > 0:
