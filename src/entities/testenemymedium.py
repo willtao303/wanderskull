@@ -23,8 +23,12 @@ class Enemy():
 
         self.surf = pygame.Surface((5,5))
         self.surf.fill((255,0,0))
+
+        self.collide = None
+
     def startup(self, ppos, room):
         self.path = self.pathfind(ppos,room)
+    '''
     def antiwall(self, room):
         if abs(self.nextpos[0]-self.x) > abs(self.nextpos[1]-self.y): # horizontal to next pos
             way = [0,0]
@@ -65,6 +69,7 @@ class Enemy():
                     self.rect.x -= 1
                 else:
                     self.rect.x += 1
+    '''
     def pathfind(self, ppos, room):
         nei = []
         route = {}
@@ -200,6 +205,11 @@ class Enemy():
                             ind = i
                 self.nextpos = self.path[ind]
                 self.path = self.path[ind:len(self.path)]
+        
+        if self.collide != None:
+            angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
+            chx, chy = math.cos(angle)*2, math.sin(angle)*2
+            self.rect.move_ip(chx, chy)
 
         test = ppos
         if room.inline(test, (self.x+25,self.y+25)):

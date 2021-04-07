@@ -1,3 +1,4 @@
+from src.entities.player import main_player
 from src.entities.player import player
 import src.entities.algorithms.pathfind as pf
 #from src.entities.testenemy import enemy
@@ -16,7 +17,8 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemy = Enemy((1,1))
+        self.enemies = [Enemy((1,1)), Enemy((2,2))]
+        self.enemy_pos = [(1, 1), (2, 2)]
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
         self.acte = acte = (roomlist[0].w, roomlist[0].h)
@@ -24,7 +26,8 @@ class PlayState():
     def enter(self):
         player.firstframe()
         print("play: hello")
-        self.enemy.startup((player.x, player.y), roomlist[self.active])
+        for nxt in self.enemies:
+            nxt.startup((player.x, player.y), roomlist[self.active])
 
     def exit(self):
         print("play: bye")
@@ -55,10 +58,32 @@ class PlayState():
                 self.acts = (roomlist[self.active].spx, roomlist[self.active].spy)
                 self.acte = (roomlist[self.active].w, roomlist[self.active].h)
 
+            #self.enemy_pos = [(int(nxt.x/50), int(nxt.y/50)) for nxt in self.enemies]
+
             roomlist[self.active].update()
-            roomlist[self.active].roomcollision(self.enemy)
-            self.enemy.update(roomlist[self.active], (player.x+24, player.y+24))
+            for nxt in self.enemies:
+                roomlist[self.active].roomcollision(nxt)
+                nxt.update(roomlist[self.active], (player.x+24, player.y+24))
             player.update()
+
+            for i in [player]+self.enemies:
+                #print(player.rect)
+                i.collide = None
+                for j in [player]+self.enemies:
+                    if i != j:
+                        if type(i) == main_player:
+                            if i.box.colliderect(j.rect):
+                                    i.collide = j
+                                    break
+                        elif type(j) == main_player:
+                            if i.rect.colliderect(j.box):
+                                    i.collide = j
+                                    break
+                        else:
+                            if i.rect.colliderect(j.rect):
+                                    i.collide = j
+                                    break
+
 
         roomlist[self.active].roomcollision(player)
 
@@ -82,22 +107,25 @@ class PlayState():
     def render(self, screen, h, w):
         offset = (player.x+25-w/2-cursor.mouseoffset[0], player.y+25-h/2-cursor.mouseoffset[1])
 
-        pygame.draw.line(screen, (0,255,0), ((self.enemy.x+24-offset[0]), (self.enemy.y+24-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
-        pygame.draw.line(screen, (0,255,255), ((self.enemy.x-offset[0]), (self.enemy.y-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
+        #pygame.draw.line(screen, (0,255,0), ((self.enemy.x+24-offset[0]), (self.enemy.y+24-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
+        #pygame.draw.line(screen, (0,255,255), ((self.enemy.x-offset[0]), (self.enemy.y-offset[1])), ((w/2+cursor.mouseoffset[0]), (h/2+cursor.mouseoffset[1])))
         if not self.paused:
+
 
             for i in range(max(0, self.active-1), min(self.active+2, len(roomlist))):
                 roomlist[i].render(screen, offset, (-20, w+20, -20, h+20))
             
             roomlist[self.active].autocorrections(player) #switched
+            for nxt in self.enemies:
+                nxt.render(screen, offset)
+
             player.render(screen, (h,w), set(roomlist[self.active].staticwalls))
-            self.enemy.render(screen, offset)
 
             mini_map_walls = roomlist[self.active].walls
             if self.active > 0:
                 mini_map_walls = mini_map_walls + roomlist[self.active-1].staticwalls#cause only one room's doors will closed at a time
             if self.active < len(roomlist)-1:
                 mini_map_walls = mini_map_walls + roomlist[self.active+1].staticwalls
-            self.minimap_builder(screen,[(self.enemy.x, self.enemy.y)], mini_map_walls)
+            self.minimap_builder(screen,[(nxt.x, nxt.y) for nxt in self.enemies], mini_map_walls)
 
  

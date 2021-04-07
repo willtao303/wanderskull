@@ -17,6 +17,8 @@ class main_player(pygame.sprite.Sprite):
         self.noMove = False # this can be used in cutscenes or whatever to make the game ignore the movement keys
         self.attackbox = pygame.Surface((20, 70))
 
+        self.collide = None
+
         #health
 
         self.max_health = 100 #all of this just for a health bar
@@ -79,7 +81,26 @@ class main_player(pygame.sprite.Sprite):
             moveVectory = math.ceil(moveVectory/diag)
            
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
+
+        if self.collide != None:
+            if moveVectorx != 0 or moveVectory != 0:
+                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
+                if moveVectorx < 0:
+                    chx = math.cos(angle) * abs(moveVectorx-1)
+                else:
+                    chx = math.cos(angle) * (moveVectorx+1)
+                if moveVectory < 0:
+                    chy = math.sin(angle) * abs(moveVectory-1)
+                else:
+                    chy = math.sin(angle) * (moveVectory+1)
+            else:
+                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
+                chx = math.cos(angle)*2
+                chy = math.sin(angle)*2
+            self.box.move_ip(chx, chy)
+
         self.box.move_ip(moveVectorx, moveVectory)
+
 
     def render(self, screen, dims, walls):
         #pygame.draw.rect(screen, (0,255,255), self.box)
@@ -108,7 +129,7 @@ class main_player(pygame.sprite.Sprite):
         For graphics we just have one surface there rendering the animations
 
         '''
-
+        self.attacks = []
         if self.attack_counter == 0:
                 
             if cursor.Lclick and self.cooldown == 0:
@@ -125,13 +146,13 @@ class main_player(pygame.sprite.Sprite):
                 perpendicular += 90
             perpendicular = math.radians(perpendicular)
             spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
-            self.attacks = []
 
             for i in range(-3, 4):#-3,4
                 x_val = self.x+25+self.points["chx"]+(i*spacex)
                 y_val = self.y+25+self.points["chy"]+(i*spacey)
                 if not ((int((x_val+1)/50), int((y_val+1)/50)) in walls or (int((x_val+9)/50), int((y_val+9)/50)) in walls):
-                    self.attacks.append(pygame.Rect((dims[1]/2+self.points["chx"]+(i*spacex), dims[0]/2+self.points["chy"]+(i*spacey)), (10,10)))
+                    self.attacks.append(pygame.Rect((x_val, y_val), (10,10)))
+                    pygame.draw.rect(screen, (0, 255, 255), pygame.Rect((dims[1]/2+self.points["chx"]+(i*spacex), dims[0]/2+self.points["chy"]+(i*spacey)), (10,10)))
                 
             self.attack_counter += 1
             if self.attack_counter >= 15:
@@ -141,9 +162,6 @@ class main_player(pygame.sprite.Sprite):
         
         if self.cooldown > 0:
             self.cooldown -= 1
-        
-        for i in self.attacks:
-            pygame.draw.rect(screen, (0, 255, 255), i)
 
     def attack_prototype(self, screen):
         #self.attackbox.x, self.attackbox.y = self.x+20, self.y+10
