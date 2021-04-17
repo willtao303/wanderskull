@@ -49,18 +49,21 @@ class Room():
             self.walls = self.staticwalls 
 
     def roomcollision(self, entity):
+
+        avoid = set(self.walls)
+
         lw = int((entity.x+1)/50)
         uw = int((entity.y+1)/50)
         rw = int((entity.x+49)/50)
         dw = int((entity.y+49)/50)
 
-        if (lw+1,uw) in self.walls or (lw+1,dw) in self.walls:
+        if (lw+1,uw) in self.walls or (lw+1,dw) in avoid:
             entity.canGo["right"] = False
-        if (rw-1,dw) in self.walls or (rw-1, uw) in self.walls:
+        if (rw-1,dw) in self.walls or (rw-1, uw) in avoid:
             entity.canGo["left"] = False
-        if (lw,uw+1) in self.walls or (rw,uw+1) in self.walls:
+        if (lw,uw+1) in self.walls or (rw,uw+1) in avoid:
             entity.canGo["down"] = False
-        if (rw,dw-1) in self.walls or (lw,dw-1) in self.walls:
+        if (rw,dw-1) in self.walls or (lw,dw-1) in avoid:
             entity.canGo["up"] = False
         
     def autocorrections(self, entity):

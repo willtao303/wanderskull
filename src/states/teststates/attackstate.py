@@ -41,7 +41,7 @@ class attacker():
         
         ind = self.body.collidelist(enemy_attacks)
         if ind != -1 and not self.knockback:
-            self.knockback = 10
+            self.knockback = 15
             self.kbangle = math.atan2(self.body.y-enemy_attacks[ind].y, self.body.x-enemy_attacks[ind].x)
             self.health -= 5
             self.health_loss = 5
@@ -101,7 +101,7 @@ class attacker():
                     self.cooldown = 20
         else:
             chx, chy = math.cos(self.kbangle)*self.knockback, math.sin(self.kbangle)*self.knockback
-            self.knockback-=1 #sorry, its linear but works
+            self.knockback-=1.5 #sorry, its linear but works
             self.health_loss -= 0.5 #cause knockback is 10 frames
             self.health_loss_bar = pygame.Surface((int(self.health_loss/5* 20),30))#change bounds
             self.health_loss_bar.fill((192, 192, 192))
@@ -152,7 +152,7 @@ class dumbenemy():
             self.hp -= 1
             self.kbangle = player.points["angle"]# knockback code  - finds hitting angle at exact moment
             #when someone clicks
-            self.knockback = 10#knockback speed
+            self.knockback = 15#knockback speed
         
         if not self.knockback:#if its not being knocked back
 
@@ -188,7 +188,7 @@ class dumbenemy():
                 self.rect.move_ip(int(chx), int(chy))
         else:
             chx, chy = math.cos(self.kbangle)*self.knockback, math.sin(self.kbangle)*self.knockback
-            self.knockback-=1 #sorry, its linear but works
+            self.knockback-=1.5 #sorry, its linear but works
             self.rect.move_ip(chx, chy)
 
         if self.hp <= 0:
@@ -259,8 +259,8 @@ class AttackState():
 
     def render(self, screen, h, w):
         #for rendering objects
-        self.attacker.draw(screen, h, w)
         #if not len(self.enemies):
         for i in self.enemies:
             i.draw(screen)
+        self.attacker.draw(screen, h, w)
         
