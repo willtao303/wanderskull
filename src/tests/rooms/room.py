@@ -57,13 +57,13 @@ class Room():
         rw = int((entity.x+49)/50)
         dw = int((entity.y+49)/50)
 
-        if (lw+1,uw) in self.walls or (lw+1,dw) in avoid:
+        if (lw+1,uw) in avoid or (lw+1,dw) in avoid:
             entity.canGo["right"] = False
-        if (rw-1,dw) in self.walls or (rw-1, uw) in avoid:
+        if (rw-1,dw) in avoid or (rw-1, uw) in avoid:
             entity.canGo["left"] = False
-        if (lw,uw+1) in self.walls or (rw,uw+1) in avoid:
+        if (lw,uw+1) in avoid or (rw,uw+1) in avoid:
             entity.canGo["down"] = False
-        if (rw,dw-1) in self.walls or (lw,dw-1) in avoid:
+        if (rw,dw-1) in avoid or (lw,dw-1) in avoid:
             entity.canGo["up"] = False
         
     def autocorrections(self, entity):

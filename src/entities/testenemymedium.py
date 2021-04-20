@@ -13,6 +13,10 @@ class Enemy():
         self.dims = (50,50)
         self.rect = pygame.Rect((self.x, self.y), self.dims)
         self.color = (255, 0, 0)
+        self.moveVectorx = 0
+        self.moveVectory = 0
+        self.moving = True
+        self.enemy_pos = [0, 0]
 
         #pathfinding
         self.nextpos = (self.x, self.y)
@@ -109,7 +113,10 @@ class Enemy():
         #if self.speed > 5:
         relx, rely = point[0]-self.x-25, point[1]-self.y-25
         angle = math.degrees(-math.atan2(rely, relx))
-        chx, chy = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
+        if 60 < math.sqrt((self.rect.x - self.enemy_pos[0])**2 + (self.rect.y - self.enemy_pos[1])**2):
+            self.moveVectorx, self.moveVectory = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
+        else:
+            self.moveVectorx, self.moveVectory = 0, 0
 ##        else:
 ##            if self.x+25 <= point[0] and point[0] <= self.x+25:
 ##                chx = 0
@@ -123,13 +130,33 @@ class Enemy():
 ##                chy = 1
 ##            elif point[1] < self.y+25:
 ##                chy = -1
+        if self.collide != None:
+            self.canGo["down"] = self.canGo["down"] and self.collide.canGo["down"]
+            self.canGo["up"] = self.canGo["up"] and self.collide.canGo["up"]
+            self.canGo["left"] = self.canGo["left"] and self.collide.canGo["left"]
+            self.canGo["right"] = self.canGo["right"] and self.collide.canGo["right"]
+            if self.collide.moving:
+                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
+                change[0] += math.cos(angle) * self.collide.speed
+                change[1] += math.sin(angle) * self.collide.speed
 
-        if (self.canGo["up"] and chy < 0) or (self.canGo["down"] and chy > 0):
-            change[1] = chy
-        if (self.canGo["left"] and chx < 0) or (self.canGo["right"] and chx > 0):
-            change[0] = chx
+        if (self.canGo["up"] and self.moveVectory  < 0) or (self.canGo["down"] and self.moveVectory  > 0):
+            change[1] += self.moveVectory 
+        if (self.canGo["left"] and self.moveVectorx < 0) or (self.canGo["right"] and self.moveVectorx > 0):
+            change[0] += self.moveVectorx
+
+        if not self.canGo["down"]:
+            change[1] = min(0, change[1])
+        if not self.canGo["up"]:
+            change[1] = max(0, change[1])
+        if not self.canGo["left"]:
+            change[0] = max(0, change[0])
+        if not self.canGo["right"]:
+            change[0] = min(0, change[0])
+
         self.rect.move_ip(tuple(change))
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
+
     def antiwall(self, room):
         if abs(self.nextpos[0]-self.x-25) > abs(self.nextpos[1]-self.y-25): # horizontal to next pos
             way = [0,0]
@@ -172,6 +199,7 @@ class Enemy():
                     self.rect.x += 1
     def update(self, room, ppos):
         self.antiwall(room)
+        #if the position of the player is less than 50, move
         if not self.foundplayer:
             if pf.distbetween(self.path[-1], ppos) >= 25:
                 self.path.append(ppos)
@@ -205,11 +233,6 @@ class Enemy():
                             ind = i
                 self.nextpos = self.path[ind]
                 self.path = self.path[ind:len(self.path)]
-        
-        if self.collide != None:
-            angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
-            chx, chy = math.cos(angle)*2, math.sin(angle)*2
-            self.rect.move_ip(chx, chy)
 
         test = ppos
         if room.inline(test, (self.x+25,self.y+25)):

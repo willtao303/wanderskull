@@ -17,7 +17,7 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((1,1)), Enemy((2,2))]
+        self.enemies = [Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
         self.enemy_pos = [(1, 1), (2, 2)]
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
@@ -61,31 +61,39 @@ class PlayState():
             #self.enemy_pos = [(int(nxt.x/50), int(nxt.y/50)) for nxt in self.enemies]
 
             roomlist[self.active].update()
-            for nxt in self.enemies:
+
+            for nxt in self.enemies: # keep it separate for object collision
                 roomlist[self.active].roomcollision(nxt)
-                nxt.update(roomlist[self.active], (player.x+24, player.y+24))
+
+            roomlist[self.active].roomcollision(player)
+            
             player.update()
+
+            for nxt in self.enemies:
+                nxt.enemy_pos = [player.x, player.y]
+                nxt.update(roomlist[self.active], (player.x+24, player.y+24))
 
             for i in [player]+self.enemies:
                 #print(player.rect)
                 i.collide = None
+                i.collide_move = None
                 for j in [player]+self.enemies:
                     if i != j:
                         if type(i) == main_player:
                             if i.box.colliderect(j.rect):
                                     i.collide = j
+                                    i.collide_move = [j.speed, j.speed]
                                     break
                         elif type(j) == main_player:
                             if i.rect.colliderect(j.box):
                                     i.collide = j
+                                    i.collide_move = [j.speed, j.speed]
                                     break
                         else:
                             if i.rect.colliderect(j.rect):
                                     i.collide = j
+                                    i.collide_move = [j.speed, j.speed]
                                     break
-
-
-        roomlist[self.active].roomcollision(player)
 
     def minimap_builder(self, screen, enemies, wall):
         square = pygame.Surface((5,5)) #player point
