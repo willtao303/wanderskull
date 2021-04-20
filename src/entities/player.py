@@ -18,6 +18,7 @@ class main_player(pygame.sprite.Sprite):
         self.attackbox = pygame.Surface((20, 70))
 
         self.collide = None
+        self.moving = False
 
         #health
 
@@ -63,17 +64,43 @@ class main_player(pygame.sprite.Sprite):
 
             moveVectorx = 0
             moveVectory = 0
+            chx, chy = 0, 0
+
+            if self.collide != None:
+                self.canGo["down"] = self.canGo["down"] and self.collide.canGo["down"]
+                self.canGo["up"] = self.canGo["up"] and self.collide.canGo["up"]
+                self.canGo["left"] = self.canGo["left"] and self.collide.canGo["left"]
+                self.canGo["right"] = self.canGo["right"] and self.collide.canGo["right"]
+
+                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
+                chx += math.cos(angle) * self.collide.speed
+                chy += math.sin(angle) * self.collide.speed
+
             if (keysdown[pygame.K_DOWN] or keysdown[pygame.K_s]) and self.canGo["down"]:
-                moveVectory = self.speed
+                moveVectory += self.speed
             if (keysdown[pygame.K_UP] or keysdown[pygame.K_w]) and self.canGo["up"]:
-                moveVectory = -self.speed
+                moveVectory += -self.speed
             if (keysdown[pygame.K_LEFT] or keysdown[pygame.K_a]) and self.canGo["left"]:
-                moveVectorx = -self.speed
+                moveVectorx += -self.speed
             if (keysdown[pygame.K_RIGHT] or keysdown[pygame.K_d]) and self.canGo["right"]:
-                moveVectorx = self.speed
+                moveVectorx += self.speed
+            
+            if moveVectorx != 0 or moveVectory != 0:
+                self.moving = True
+            else:
+                self.moving = False
 
-            #attacking
+            moveVectorx += chx
+            moveVectory += chy
 
+            if not self.canGo["down"]:
+                moveVectory = min(0, moveVectory)
+            if not self.canGo["up"]:
+                moveVectory = max(0, moveVectory)
+            if not self.canGo["left"]:
+                moveVectorx = max(0, moveVectorx)
+            if not self.canGo["right"]:
+                moveVectorx = min(0, moveVectorx)
 
         if abs(moveVectorx) == abs(moveVectory) and moveVectorx != 0 and 0 != moveVectory:
             diag = math.sqrt(2)#*(7/(8*math.sqrt(5*self.speed)))
@@ -81,23 +108,6 @@ class main_player(pygame.sprite.Sprite):
             moveVectory = math.ceil(moveVectory/diag)
            
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
-
-        if self.collide != None:
-            if moveVectorx != 0 or moveVectory != 0:
-                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
-                if moveVectorx < 0:
-                    chx = math.cos(angle) * abs(moveVectorx-1)
-                else:
-                    chx = math.cos(angle) * (moveVectorx+1)
-                if moveVectory < 0:
-                    chy = math.sin(angle) * abs(moveVectory-1)
-                else:
-                    chy = math.sin(angle) * (moveVectory+1)
-            else:
-                angle = math.atan2(self.y-self.collide.y, self.x-self.collide.x)
-                chx = math.cos(angle)*2
-                chy = math.sin(angle)*2
-            self.box.move_ip(chx, chy)
 
         self.box.move_ip(moveVectorx, moveVectory)
 
