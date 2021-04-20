@@ -71,7 +71,7 @@ class PlayState():
 
             for nxt in self.enemies:
                 nxt.enemy_pos = [player.x, player.y]
-                nxt.update(roomlist[self.active], (player.x+24, player.y+24))
+                nxt.update(roomlist[self.active], (player.x+24, player.y+24), player)
 
             for i in [player]+self.enemies:
                 #print(player.rect)

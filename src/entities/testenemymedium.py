@@ -30,6 +30,11 @@ class Enemy():
 
         self.collide = None
 
+        #attacks
+
+        self.knock_back = 0
+        self.knock_back_angle = 0
+
     def startup(self, ppos, room):
         self.path = self.pathfind(ppos,room)
     '''
@@ -113,7 +118,11 @@ class Enemy():
         #if self.speed > 5:
         relx, rely = point[0]-self.x-25, point[1]-self.y-25
         angle = math.degrees(-math.atan2(rely, relx))
-        if 60 < math.sqrt((self.rect.x - self.enemy_pos[0])**2 + (self.rect.y - self.enemy_pos[1])**2):
+        if self.knock_back > 0:
+            chx, chy = math.cos(self.knock_back_angle)*self.knock_back, math.sin(self.knock_back_angle)*self.knock_back
+            self.moveVectorx , self.moveVectory = chx, chy
+            self.knock_back -= 1.5
+        elif 60 < math.sqrt((self.rect.x - self.enemy_pos[0])**2 + (self.rect.y - self.enemy_pos[1])**2):
             self.moveVectorx, self.moveVectory = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
         else:
             self.moveVectorx, self.moveVectory = 0, 0
@@ -197,7 +206,13 @@ class Enemy():
                     self.rect.x -= 1
                 elif self.canGo["right"]:
                     self.rect.x += 1
-    def update(self, room, ppos):
+    def update(self, room, ppos, player):
+        
+        #check for attacks
+        if self.rect.collidelist(player.attacks) != -1 and self.knock_back == 0:
+            self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
+            self.knock_back = 15
+
         self.antiwall(room)
         #if the position of the player is less than 50, move
         if not self.foundplayer:
