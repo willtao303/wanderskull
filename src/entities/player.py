@@ -1,6 +1,8 @@
 import pygame
 import math
 from src.mouse import cursor
+from src.entities.Attack import Weapon
+from src.entities.Attack import weapon_library
 #phd = placeholder
 
 class main_player(pygame.sprite.Sprite):
@@ -44,6 +46,7 @@ class main_player(pygame.sprite.Sprite):
 
         #attack
 
+        self.using = Weapon("beam", weapon_library["beam"])
         self.cooldown = 0
         self.attack_counter = 0
         self.points = {"chx":0, "chy":0, "angle":0}
@@ -145,30 +148,17 @@ class main_player(pygame.sprite.Sprite):
             if cursor.Lclick and self.cooldown == 0:
 
                 self.points["angle"] = math.atan2(cursor.y-dims[0]/2, cursor.x-dims[1]/2)
-                self.points["chx"], self.points["chy"] = math.cos(self.points["angle"])*50, math.sin(self.points["angle"])*50
+                self.points["chx"], self.points["chy"] = math.cos(self.points["angle"]), math.sin(self.points["angle"])
                 self.attack_counter += 1
             
         else:
-            perpendicular = math.degrees(self.points["angle"])
-            if perpendicular > 0:
-                perpendicular -= 90
-            else:
-                perpendicular += 90
-            perpendicular = math.radians(perpendicular)
-            spacex, spacey = math.cos(perpendicular)*14, math.sin(perpendicular)*14
-
-            for i in range(-3, 4):#-3,4
-                x_val = self.x+25+self.points["chx"]+(i*spacex)
-                y_val = self.y+25+self.points["chy"]+(i*spacey)
-                if not ((int((x_val+1)/50), int((y_val+1)/50)) in walls or (int((x_val+9)/50), int((y_val+9)/50)) in walls):
-                    self.attacks.append(pygame.Rect((x_val, y_val), (10,10)))
-                    pygame.draw.rect(screen, (0, 255, 255), pygame.Rect((dims[1]/2+self.points["chx"]+(i*spacex), dims[0]/2+self.points["chy"]+(i*spacey)), (10,10)))
+            self.attacks = self.using.send_attack([self.x, self.y], self.points, dims, walls, screen)
                 
             self.attack_counter += 1
-            if self.attack_counter >= 15:
+            if self.attack_counter >= self.using.duration:
                 self.attacks = []
                 self.attack_counter = 0
-                self.cooldown = 20
+                self.cooldown = self.using.cooldown
         
         if self.cooldown > 0:
             self.cooldown -= 1

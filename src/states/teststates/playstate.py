@@ -7,18 +7,18 @@ from src.tests.rooms.room import Room
 from src.mouse import cursor
 import pygame
 
-#roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4),(12*(i+1), 5), (12*(i+1), 6),(12*(i+1), 7),(12*(i+1), 8),(12*i, 4), (12*i, 5), (12*i, 6),(12*i, 7),(12*i, 8)], (0, max(i*12, 0))) for i in range(25)]
-roomlist = [
-    Room((12,12), [(3,3),(3,4),(4,3),(4,4),(6,10),(7,10),(8,10),(9,10),(10,10),(10,9), (10,8),(10,7), (10,6)], [(5,12),(6,12)], (0,0)),
-    Room((12,24), [], [(5,12),(6,12)], (0,12))
-    ]
+roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4),(12*(i+1), 5), (12*(i+1), 6),(12*(i+1), 7),(12*(i+1), 8),(12*i, 4), (12*i, 5), (12*i, 6),(12*i, 7),(12*i, 8)], (0, max(i*12, 0))) for i in range(25)]
+#roomlist = [
+#    Room((12,12), [(3,3),(3,4),(4,3),(4,4),(6,10),(7,10),(8,10),(9,10),(10,10),(10,9), (10,8),(10,7), (10,6)], [(5,12),(6,12)], (0,0)),
+#    Room((12,24), [], [(5,12),(6,12)], (0,12))
+#    ]
 
 class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
-        self.enemy_pos = [(1, 1), (2, 2)]
+        self.enemies = [Enemy((7, 7))]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
+        self.enemy_pos = [(1, 1), (2, 2)] #useless right now
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
         self.acte = acte = (roomlist[0].w, roomlist[0].h)
@@ -127,7 +127,11 @@ class PlayState():
             for nxt in self.enemies:
                 nxt.render(screen, offset)
 
-            player.render(screen, (h,w), set(roomlist[self.active].staticwalls))
+            if roomlist[self.active].doorsclosed:
+                cur_wall = set(roomlist[self.active].staticwalls+roomlist[self.active].doors)
+            else:
+                cur_wall = set(roomlist[self.active].staticwalls)
+            player.render(screen, (h,w), cur_wall)
 
             mini_map_walls = roomlist[self.active].walls
             if self.active > 0:
