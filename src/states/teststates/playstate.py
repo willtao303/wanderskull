@@ -5,6 +5,8 @@ from src.entities.Inventory import Inventory
 #from src.entities.testenemy import enemy
 from src.entities.testenemymedium import Enemy
 from src.tests.rooms.room import Room
+from src.entities.Item import item_library
+from src.entities.Item import Item
 from src.mouse import cursor
 import random
 import pygame
@@ -19,11 +21,13 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((5, 5)), Enemy((5, 5))]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
+        self.enemies = [Enemy((5, 5)) for _ in range(10)]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
         self.enemy_pos = [(1, 1), (2, 2)] #useless right now
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
         self.acte = acte = (roomlist[0].w, roomlist[0].h)
+
+        self.drops = []
 
     def enter(self):
         player.firstframe()
@@ -47,7 +51,7 @@ class PlayState():
                 self.changeTo = "start"
         
         #inventory - using screen height and width
-        if cursor.Lclick and 1070  <= cursor.x <= 1200 and 575 <= cursor.y <= 675 and (not player.storage.clicking):
+        if cursor.Lclick and 1070  <= cursor.x <= 1190 and 580 <= cursor.y <= 670 and (not player.storage.clicking):
             player.storage.status = not player.storage.status
             player.storage.clicking = True
         elif player.storage.clicking and not cursor.Lclick:
@@ -84,15 +88,20 @@ class PlayState():
                 nxt.update(roomlist[self.active], (player.x+24, player.y+24), player)
                 if nxt.health <= 0:
                     removelist.append(nxt)
-                    del nxt
+                    self.drops.append(Item("spear", item_library["spear"]))
+                    self.drops[-1].rect.x = random.randint(nxt.x-17, nxt.x+18)
+                    self.drops[-1].rect.y = random.randint(nxt.y-17, nxt.y+18)
+                    self.drops.append(Item("bomb", item_library["bomb"]))
+                    self.drops[-1].rect.x = random.randint(nxt.x-17, nxt.x+18)
+                    self.drops[-1].rect.y = random.randint(nxt.y-17, nxt.y+18)
             #removing dead enemies
             for nxt in removelist:
                 self.enemies.remove(nxt)
             
             #adding enemies
-            if random.randint(1, 300) == 1:
-                self.enemies.append(Enemy((7, 7)))
-                self.enemies[-1].startup((player.x, player.y), roomlist[self.active])
+            #if random.randint(1, 300) == 1:
+            #    self.enemies.append(Enemy((7, 7)))
+            #    self.enemies[-1].startup((player.x, player.y), roomlist[self.active])
 
             for i in [player]+self.enemies:
                 #print(player.rect)
@@ -115,6 +124,18 @@ class PlayState():
                                     i.collide = j
                                     i.collide_move = [j.speed, j.speed]
                                     break
+            
+            #item drop collision
+            del_list = []
+            for item in self.drops:
+                if player.box.colliderect(item.rect):
+                    item.dropped = False
+                    player.storage.auto_fill(item)
+                    del_list.append(item)
+            for nxt in del_list:
+                self.drops.remove(nxt)
+            del_list = []
+
 
     def minimap_builder(self, screen, enemies, wall):
         square = pygame.Surface((5,5)) #player point
@@ -144,6 +165,9 @@ class PlayState():
             for i in range(max(0, self.active-1), min(self.active+2, len(roomlist))):
                 roomlist[i].render(screen, offset, (-20, w+20, -20, h+20))
             
+            for item in self.drops:
+                item.render(screen, offset)
+            
             roomlist[self.active].autocorrections(player) #switched
             for nxt in self.enemies:
                 nxt.render(screen, offset)
@@ -152,6 +176,7 @@ class PlayState():
                 cur_wall = set(roomlist[self.active].staticwalls+roomlist[self.active].doors)
             else:
                 cur_wall = set(roomlist[self.active].staticwalls)
+
             player.render(screen, (h,w), cur_wall)
 
             mini_map_walls = roomlist[self.active].walls

@@ -3,7 +3,8 @@ import math
 from src.mouse import cursor
 from src.entities.Attack import Weapon
 from src.entities.Attack import weapon_library
-from src.entities.Inventory import Inventory
+from src.entities.Inventory import Inventory, Cell
+from src.entities.Item import Item
 #phd = placeholder
 
 class main_player(pygame.sprite.Sprite):
@@ -47,7 +48,7 @@ class main_player(pygame.sprite.Sprite):
 
         #attack
 
-        self.using = Weapon("beam", weapon_library["beam"])
+        self.using = Weapon("sword", weapon_library["sword"])
         self.cooldown = 0
         self.attack_counter = 0
         self.points = {"chx":0, "chy":0, "angle":0}
