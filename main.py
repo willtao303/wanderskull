@@ -26,11 +26,11 @@ scroll = 0
 while running:
     keyspressed = []
     scroll = 0
-    for event in pygame.event.get():  # an event can only be one type, use elif
+    for event in pygame.event.get(): 
         # print(event)
         if event.type == pygame.QUIT:
             running = False
-            break  # no need to check events if window is closed
+            break  
         elif event.type == pygame.VIDEORESIZE:
             # h, w = event.h, event.w
             screen_height, screen_width = event.h, event.w

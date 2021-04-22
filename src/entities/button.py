@@ -45,13 +45,13 @@ class Button():
         return f"Button at (centre) {tuple(self.pos)} \
         dimensions of {tuple(self.dims)}."
 
-    def update(self, unfocused="", onHover="", *args): 
+    def update(self, idle="", onHover="", *args): 
         """Handles button presses and hovering."""
         self.rect.x = self.x - self.w // 2
         self.rect.y = self.y - self.h // 2
         self.color = (30, 30, 35)
         
-        self.text= unfocused
+        self.text = idle
 
         # if button being hovered
         if cursor.rect.colliderect(self.rect):
