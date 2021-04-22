@@ -35,6 +35,9 @@ class Enemy():
         self.knock_back = 0
         self.knock_back_angle = 0
 
+        #health
+        self.health = 100
+
     def startup(self, ppos, room):
         self.path = self.pathfind(ppos,room)
     '''
@@ -105,12 +108,11 @@ class Enemy():
         while not((int(ppos[0]/50),int(ppos[1]/50)) in end):
             m = room.graph[end[-1]]
             for i in m:
-                if route[i] == route[end[-1]] - 1:
+                if i in route.keys() and route[i] == route[end[-1]] - 1:
                     end.append(i)
                     break
         for i in end:
             nei.append((i[0]*50+25, i[1]*50+25))
-        print(nei)
         return nei
 
     def goto(self, point): #moves self.speed pixels towards point
@@ -164,6 +166,8 @@ class Enemy():
             change[0] = min(0, change[0])
 
         self.rect.move_ip(tuple(change))
+        self.y = self.rect.y
+        self.x = self.rect.x
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
 
     def antiwall(self, room):
@@ -212,6 +216,7 @@ class Enemy():
         if self.rect.collidelist(player.attacks) != -1 and self.knock_back == 0:
             self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
             self.knock_back = 15
+            self.health -= player.using.damage
 
         self.antiwall(room)
         #if the position of the player is less than 50, move
@@ -263,8 +268,8 @@ class Enemy():
 
         #            self.path = self.pathfind(self.nextpos, room) + self.path
         
-        self.x = self.rect.x
-        self.y = self.rect.y
+        #self.x = self.rect.x
+        #self.y = self.rect.y
         
     def render(self, screen, offset):
         #pygame.draw.rect(screen, self.color, self.rect)

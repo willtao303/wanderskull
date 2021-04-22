@@ -1,10 +1,12 @@
 from src.entities.player import main_player
 from src.entities.player import player
 import src.entities.algorithms.pathfind as pf
+from src.entities.Inventory import Inventory
 #from src.entities.testenemy import enemy
 from src.entities.testenemymedium import Enemy
 from src.tests.rooms.room import Room
 from src.mouse import cursor
+import random
 import pygame
 
 roomlist = [Room((12, 12*(i+1)),[],[(12*(i+1), 4),(12*(i+1), 5), (12*(i+1), 6),(12*(i+1), 7),(12*(i+1), 8),(12*i, 4), (12*i, 5), (12*i, 6),(12*i, 7),(12*i, 8)], (0, max(i*12, 0))) for i in range(25)]
@@ -17,7 +19,7 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((7, 7))]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
+        self.enemies = [Enemy((5, 5)), Enemy((5, 5))]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
         self.enemy_pos = [(1, 1), (2, 2)] #useless right now
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
@@ -44,6 +46,13 @@ class PlayState():
             if pygame.K_ESCAPE in keyspressed:
                 self.changeTo = "start"
         
+        #inventory - using screen height and width
+        if cursor.Lclick and 1070  <= cursor.x <= 1200 and 575 <= cursor.y <= 675 and (not player.storage.clicking):
+            player.storage.status = not player.storage.status
+            player.storage.clicking = True
+        elif player.storage.clicking and not cursor.Lclick:
+            player.storage.clicking = False
+        
         if self.paused:
             pass
         else:
@@ -69,9 +78,21 @@ class PlayState():
             
             player.update()
 
+            removelist = []
             for nxt in self.enemies:
                 nxt.enemy_pos = [player.x, player.y]
                 nxt.update(roomlist[self.active], (player.x+24, player.y+24), player)
+                if nxt.health <= 0:
+                    #removelist.append(nxt)
+                    del nxt
+            #removing dead enemies
+            for nxt in removelist:
+                self.enemies.remove(nxt)
+            
+            #adding enemies
+            if random.randint(1, 300) == 1:
+                self.enemies.append(Enemy((7, 7)))
+                self.enemies[-1].startup((player.x, player.y), roomlist[self.active])
 
             for i in [player]+self.enemies:
                 #print(player.rect)
@@ -139,5 +160,8 @@ class PlayState():
             if self.active < len(roomlist)-1:
                 mini_map_walls = mini_map_walls + roomlist[self.active+1].staticwalls
             self.minimap_builder(screen,[(nxt.x, nxt.y) for nxt in self.enemies], mini_map_walls)
+
+            #show storage
+            player.storage.show(screen, [h, w])
 
  
