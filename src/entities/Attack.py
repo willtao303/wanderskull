@@ -44,4 +44,3 @@ class Weapon():
                 else:
                     col[i+self.width//2] = False
         return vals
-                

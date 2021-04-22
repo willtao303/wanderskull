@@ -3,12 +3,13 @@ import math
 from src.mouse import cursor
 from src.entities.Attack import Weapon
 from src.entities.Attack import weapon_library
+from src.entities.Inventory import Inventory
 #phd = placeholder
 
 class main_player(pygame.sprite.Sprite):
     def __init__(self):
         self.height, self.width = 50, 50
-        self.x, self.y = (7*50, 7*50)
+        self.x, self.y = (1*50, 1*50)
 
         self.sprite = pygame.Surface((50,50)) #pygame.image.load('src/tests/images/sample image.png')
         self.sprite.fill((0,255,255))
@@ -51,6 +52,10 @@ class main_player(pygame.sprite.Sprite):
         self.attack_counter = 0
         self.points = {"chx":0, "chy":0, "angle":0}
         self.attacks = []
+
+        #inventory
+
+        self.storage = Inventory()
     
     def firstframe(self):
         #insert json get stuff here
@@ -145,8 +150,7 @@ class main_player(pygame.sprite.Sprite):
         self.attacks = []
         if self.attack_counter == 0:
                 
-            if cursor.Lclick and self.cooldown == 0:
-
+            if cursor.Lclick and self.cooldown == 0 and cursor.y < 550:
                 self.points["angle"] = math.atan2(cursor.y-dims[0]/2, cursor.x-dims[1]/2)
                 self.points["chx"], self.points["chy"] = math.cos(self.points["angle"]), math.sin(self.points["angle"])
                 self.attack_counter += 1
