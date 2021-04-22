@@ -1,8 +1,8 @@
 import pygame
-from src.mouse import cursor
+from ..mouse import cursor
 
 
-class Button():
+class Button:
     def __init__(self, dimensions: tuple, position: tuple, function):
         """Creates a rectangle button for use in pygame.
 
@@ -11,10 +11,8 @@ class Button():
             position (int, int): centre coordinate of button.
             function: function address to be executed on press.
         """
-        # center coordinates
         self.dims = dimensions
-
-        self.pos = position  # pos = (width, height) <- (x, y) ?
+        self.pos = position
 
         self.rect = pygame.Rect(self.pos, self.dims)
 
@@ -45,19 +43,19 @@ class Button():
         return f"Button at (centre) {tuple(self.pos)} \
         dimensions of {tuple(self.dims)}."
 
-    def update(self, idle="", onHover="", *args): 
+    def update(self, offHoverText="", onHoverText="", *args): 
         """Handles button presses and hovering."""
         self.rect.x = self.x - self.w // 2
         self.rect.y = self.y - self.h // 2
         self.color = (30, 30, 35)
         
-        self.text = idle
+        self.text = offHoverText
 
         # if button being hovered
         if cursor.rect.colliderect(self.rect):
             self.color = (50, 50, 70)
 
-            self.text = onHover
+            self.text = onHoverText
 
             # if button being clicked
             if cursor.Lclick:
@@ -71,13 +69,9 @@ class Button():
         # print(str(self))
         pygame.draw.rect(screen, self.color, self.rect)
 
-        if font:
-            pass
-        else:
-            font = pygame.font.SysFont('Arial', 40)
+        font = font if font else pygame.font.SysFont('Arial', 40)
 
         text = font.render(self.text, False, (255, 255, 255))
-        textWidth = text.get_width()
 
-        screen.blit(text, (self.x - textWidth // 2, self.y - self.h // 2))
+        screen.blit(text, (self.x - text.get_width() // 2, self.y - self.h // 2))
 
