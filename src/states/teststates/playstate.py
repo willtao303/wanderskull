@@ -83,7 +83,7 @@ class PlayState():
                 nxt.enemy_pos = [player.x, player.y]
                 nxt.update(roomlist[self.active], (player.x+24, player.y+24), player)
                 if nxt.health <= 0:
-                    #removelist.append(nxt)
+                    removelist.append(nxt)
                     del nxt
             #removing dead enemies
             for nxt in removelist:
