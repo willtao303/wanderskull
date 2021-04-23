@@ -3,14 +3,14 @@ import pygame
 import math
 
 class Enemy():
-    def __init__(self, pos:tuple):
+    def __init__(self, pos: tuple[float, float]):
         #body and position
-        self.x = pos[0]*50
-        self.y = pos[1]*50
-        self.sprite = pygame.Surface((50,50))
-        self.sprite.fill((255,0,0))
+        self.x = pos[0] * 50
+        self.y = pos[1] * 50
+        self.sprite = pygame.Surface((50, 50))
+        self.sprite.fill((255, 0, 0))
         self.speed = 2
-        self.dims = (50,50)
+        self.dims = (50, 50)
         self.rect = pygame.Rect((self.x, self.y), self.dims)
         self.color = (255, 0, 0)
         self.moveVectorx = 0
@@ -25,8 +25,8 @@ class Enemy():
         self.foundplayer = False
         self.canGo = {"down":True, "up":True, "left":True, "right":True}
 
-        self.surf = pygame.Surface((5,5))
-        self.surf.fill((255,0,0))
+        self.surf = pygame.Surface((5, 5))
+        self.surf.fill((255, 0, 0))
 
         self.collide = None
 
@@ -38,7 +38,7 @@ class Enemy():
         #health
         self.health = 100
 
-    def startup(self, ppos, room):
+    def startup(self, ppos: tuple[float, float], room):
         self.path = self.pathfind(ppos,room)
     '''
     def antiwall(self, room):
@@ -82,15 +82,25 @@ class Enemy():
                 else:
                     self.rect.x += 1
     '''
-    def pathfind(self, ppos, room):
+    def pathfind(self, ppos: tuple[float, float], room):
+        """[summary]
+        Args:
+            ppos (tuple[float, float]): The player's coordinates.
+            room (Room): the room i think
+        """
         nei = []
         route = {}
-        queue = [(int(ppos[0]/50),int(ppos[1]/50))]
-        end = [(int(self.x/50),int(self.y/50))]
+
+        ppos50 = [ppos[0] // 50, ppos[1] // 50]
+        x50, y50 = self.x // 50, self.y // 50
+
+        queue = [(ppos50[0], ppos50[1])]
+        end = [(x50, y50)]
         num = 1
-        if not (int(self.x/50),int(self.y/50)) in room.graph.keys():
+
+        if (x50, y50) not in room.graph.keys():
             print("origin not found")
-        while not((int(self.x/50),int(self.y/50)) in route.keys()) and len(queue)!=0:
+        while ((x50, y50) not in route.keys()) and queue:
             temp = []
             for i in queue:
                 route[i] = num
@@ -102,17 +112,17 @@ class Enemy():
                     queue.append(i)
             num += 1
             #print("finding...\ntemp: ", temp)
-        if not((int(ppos[0]/50),int(ppos[1]/50)) in route.keys()) or not((int(self.x/50),int(self.y/50))) in route.keys():
+        if ((ppos50[0], ppos50[1]) not in route.keys()) or (x50, y50) not in route.keys():
             print("path not found")
-            return [((int(self.x/50),int(self.y/50)))]
-        while not((int(ppos[0]/50),int(ppos[1]/50)) in end):
+            return [(x50, y50)]
+        while (ppos50[0], ppos50[1]) not in end:
             m = room.graph[end[-1]]
             for i in m:
                 if i in route.keys() and route[i] == route[end[-1]] - 1:
                     end.append(i)
                     break
         for i in end:
-            nei.append((i[0]*50+25, i[1]*50+25))
+            nei.append((i[0]*50 + 25, i[1]*50 + 25))
         return nei
 
     def goto(self, point): #moves self.speed pixels towards point
@@ -172,16 +182,16 @@ class Enemy():
 
     def antiwall(self, room):
         if abs(self.nextpos[0]-self.x-25) > abs(self.nextpos[1]-self.y-25): # horizontal to next pos
-            way = [0,0]
+            way = [0, 0]
             if self.x < self.nextpos[0]:
-                if (int((self.x+25)/50)+1,int(self.y/50)) in room.walls:
+                if ((self.x+25) // 50 + 1, self.y // 50) in room.walls:
                     way[0] = 1
-                if (int((self.x+25)/50)+1,int((self.y+50)/50)) in room.walls:
+                if ((self.x+25) // 50 + 1, (self.y+50) // 50) in room.walls:
                     way[1] = 1
             else: # LEFT QUADRENT
-                if (int((self.x+25)/50)-1,int(self.y/50)) in room.walls:
+                if ((self.x+25) // 50 - 1, self.y // 50) in room.walls:
                     way[0] = -1
-                if (int((self.x+25)/50)-1,int((self.y+50)/50)) in room.walls:
+                if ((self.x+25) // 50 - 1, (self.y+50) // 50) in room.walls:
                     way[1] = -1
                 
             if way[0] != way[1]:
@@ -193,16 +203,16 @@ class Enemy():
                 pass
                 
         else:
-            way = [0,0]
+            way = [0, 0]
             if self.y < self.nextpos[1]:
-                if (int(self.x/50),int((self.y+25)/50)+1) in room.walls:
+                if (self.x // 50, (self.y+25) // 50 + 1) in room.walls:
                     way[0] = 1
-                if (int((self.x+50)/50),int((self.y+25)/50)+1) in room.walls:
+                if ((self.x+50) // 50, (self.y+25) // 50 + 1) in room.walls:
                     way[1] = 1
             else: #lower
-                if (int(self.x/50),int((self.y+25)/50)-1) in room.walls:
+                if (self.x // 50, (self.y+25) // 50 - 1) in room.walls:
                     way[0] = -1
-                if (int((self.x+50)/50),int((self.y+25)/50)-1) in room.walls:
+                if ((self.x+50) // 50, (self.y+25) // 50 - 1) in room.walls:
                     way[1] = -1
                 
             if way[0] != way[1]:
@@ -210,6 +220,7 @@ class Enemy():
                     self.rect.x -= 1
                 elif self.canGo["right"]:
                     self.rect.x += 1
+
     def update(self, room, ppos, player):
         
         #check for attacks
@@ -230,9 +241,9 @@ class Enemy():
                 if self.rect.collidepoint(self.path[0]):
                     print("n")
                     self.path.pop(0)
-                if room.inline(ppos, (self.x+25,self.y+25)): 
+                if room.inline(ppos, (self.x + 25, self.y + 25)): 
                     self.foundplayer = True
-        elif room.inline(ppos, (self.x+25,self.y+25)):
+        elif room.inline(ppos, (self.x + 25, self.y + 25)):
             self.goto(ppos)
             self.path = [ppos]
             self.nextpos = ppos
@@ -247,19 +258,19 @@ class Enemy():
                 dist = 1
                 ind = 0
                 for i in range(len(self.path)):
-                    if pf.distbetween((self.x,self.y),self.path[i])/(i+1) < dist:
-                        if room.inline((self.x+25,self.y+25),self.path[i]):
-                            dist = pf.distbetween((self.x,self.y),self.path[i])/(i+1)
+                    if pf.distbetween((self.x, self.y), self.path[i]) / (i+1) < dist:
+                        if room.inline((self.x + 25,self.y + 25), self.path[i]):
+                            dist = pf.distbetween((self.x, self.y), self.path[i]) / (i+1)
                             ind = i
                 self.nextpos = self.path[ind]
-                self.path = self.path[ind:len(self.path)]
+                self.path = self.path[ind:]
 
         test = ppos
-        if room.inline(test, (self.x+25,self.y+25)):
-            self.sprite.fill((0,255,0))
+        if room.inline(test, (self.x + 25, self.y + 25)):
+            self.sprite.fill((0, 255, 0))
         #     self.goto(test)
         else:
-            self.sprite.fill((255,0,0))
+            self.sprite.fill((255, 0, 0))
 
         if self.x == self.rect.x and self.y == self.rect.y:
             if pf.distbetween((self.x,self.y),ppos) > self.range:

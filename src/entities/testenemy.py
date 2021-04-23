@@ -8,13 +8,13 @@ reset = 0  # what does this do
 
 class Enemy():
     def __init__(self):
-        self.x = 9*50
-        self.y = 6*50
+        self.x = 9 * 50
+        self.y = 6 * 50
         self.speed = 3
         self.dims = (50, 50)  # size of enemy
         self.rect = pygame.Rect((self.x, self.y), self.dims)
         self.next = None
-        self.range = 10+50  # enemy attack range?
+        self.range = 50 + 10 # size of enemy + 10
         self.angle = 0
 
         # this is hypothetical
@@ -31,29 +31,20 @@ class Enemy():
         self.room = room
         self.map = room.dist
         print(self.map[(0, 0)][(9, 9)])
-        self.next = self.find_path(ppos)
+        self.find_path(ppos)
 
     def update(self, ppos):
         """Moves enemy closer to player if possible."""
-        dist = math.sqrt((self.x+24-ppos[0])**2+(self.y+24-ppos[1])**2)
-        x50 = int(self.x/50)
-        y50 = int(self.y/50)
+        dist = math.sqrt((self.x + 24 - ppos[0])**2 + (self.y + 24 - ppos[1])**2)
+        x50 = self.x // 50
+        y50 = self.y // 50
 
-        """        
-        -5 / 3
-        >>> -1.6666666666666667
-        int(-5 / 3)
-        >>> -1
-        -5 // 3
-        >>> -2
-        If self.xy is negative, integer division would probably be better
-        """
 
         # ----
         if dist > self.range:  # if enemy is in range
             if (x50, y50) == self.next:  # if the current position is at the targeted position
-                self.next = self.find_path(ppos)
-                relx, rely = self.next[0]*50-self.x, self.next[1]*50-self.y
+                self.find_path(ppos)
+                relx, rely = self.next[0]*50 - self.x, self.next[1]*50 - self.y
                 self.angle = math.degrees(-math.atan2(rely, relx))  # get the angle
             else:  # move towards the targeted position
                 chx, chy = math.cos(-math.radians(self.angle))*self.speed, math.sin(-math.radians(self.angle))*self.speed
