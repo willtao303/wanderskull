@@ -21,7 +21,7 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((5, 5)) for _ in range(10)]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
+        self.enemies = [Enemy((5, 5)) for _ in range(16)]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
         self.enemy_pos = [(1, 1), (2, 2)] #useless right now
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
@@ -54,6 +54,25 @@ class PlayState():
         if cursor.Lclick and 1070  <= cursor.x <= 1190 and 580 <= cursor.y <= 670 and (not player.storage.clicking):
             player.storage.status = not player.storage.status
             player.storage.clicking = True
+            #set selected to nothing
+            if player.storage.selected != -1:
+                player.storage.inv[player.storage.selected].selected = False
+                player.storage.inv[player.storage.selected].re_blit()
+                player.storage.selected = -1
+        elif player.storage.clicking and not cursor.Lclick:
+            player.storage.clicking = False
+        
+        #inventory cells clicked ?
+        if (player.storage.status and cursor.Lclick and
+         ((220 <= cursor.x <= 900 and 130 <= cursor.y <= 555 and
+          not (cursor.x//5 in {61, 78, 95, 112, 129, 146, 163})
+         and not (cursor.y//5 in {43, 60, 77, 94})) or (920 <= cursor.x <= 1000 and 215 <= cursor.y <= 470 and 
+         not(cursor.y//5 in {60, 77}))) and 
+         (not player.storage.clicking)):
+            # within bounds = 220 + 85x , 130 + 85y = 900 555
+            # div by 5 and then compare x = {61, 78, 95, 112, 129, 146, 163} y = {43, 60, 77, 94}
+            player.storage.clicking = True
+            player.storage.select((cursor.x//5, cursor.y//5))
         elif player.storage.clicking and not cursor.Lclick:
             player.storage.clicking = False
         

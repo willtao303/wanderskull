@@ -3,7 +3,7 @@ import pygame
 import math
 
 class Enemy():
-    def __init__(self, pos: tuple[float, float]):
+    def __init__(self, pos: tuple((float, float))):
         #body and position
         self.x = pos[0] * 50
         self.y = pos[1] * 50
@@ -38,7 +38,7 @@ class Enemy():
         #health
         self.health = 100
 
-    def startup(self, ppos: tuple[float, float], room):
+    def startup(self, ppos: tuple((float, float)), room):
         self.path = self.pathfind(ppos,room)
     '''
     def antiwall(self, room):
@@ -82,7 +82,7 @@ class Enemy():
                 else:
                     self.rect.x += 1
     '''
-    def pathfind(self, ppos: tuple[float, float], room):
+    def pathfind(self, ppos: tuple((float, float)), room):
         """[summary]
         Args:
             ppos (tuple[float, float]): The player's coordinates.
@@ -239,7 +239,6 @@ class Enemy():
             if len(self.path):
                 self.goto(self.path[0])
                 if self.rect.collidepoint(self.path[0]):
-                    print("n")
                     self.path.pop(0)
                 if room.inline(ppos, (self.x + 25, self.y + 25)): 
                     self.foundplayer = True
