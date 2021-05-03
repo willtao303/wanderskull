@@ -1,7 +1,7 @@
 import pygame
 import math
 from src.mouse import cursor
-from src.entities.Attack import Weapon
+from src.entities.Attack import Attack
 from src.entities.Attack import weapon_library
 from src.entities.Inventory import Inventory, Cell
 from src.entities.Item import Item
@@ -48,10 +48,7 @@ class main_player(pygame.sprite.Sprite):
 
         #attack
 
-        self.using = Weapon("sword", weapon_library["sword"])
         self.cooldown = 0
-        self.attack_counter = 0
-        self.points = {"chx":0, "chy":0, "angle":0}
         self.attacks = []
 
         #inventory
@@ -148,25 +145,39 @@ class main_player(pygame.sprite.Sprite):
         For graphics we just have one surface there rendering the animations
 
         '''
-        self.attacks = []
-        if self.attack_counter == 0:
-                
-            if cursor.Lclick and self.cooldown == 0 and cursor.y < 550:
-                self.points["angle"] = math.atan2(cursor.y-dims[0]/2, cursor.x-dims[1]/2)
-                self.points["chx"], self.points["chy"] = math.cos(self.points["angle"]), math.sin(self.points["angle"])
-                self.attack_counter += 1
-            
+        if self.cooldown == 0: #move this later
+            if (cursor.Lclick and cursor.y < 550 and not self.storage.status
+            and self.storage.mainhand != 5 and self.storage.inv[self.storage.mainhand].stored != None 
+            and "weapon" in self.storage.inv[self.storage.mainhand].stored.type):
+                #do the aiming stuff
+                angle = math.atan2(cursor.y-dims[0]/2, cursor.x-dims[1]/2)
+                points = {
+                    "chx":math.cos(angle), "chy":math.sin(angle), "angle":angle
+                }
+                #send the attack
+                name = self.storage.inv[self.storage.mainhand].stored.name
+                self.attacks.append(Attack(name, weapon_library[name], points, (self.x, self.y), (cursor.x, cursor.y), dims))
+                #cooldown
+                self.cooldown = weapon_library[name]["cooldown"]
+                if self.storage.inv[self.storage.mainhand].stored.type == "consumable_weapon":
+                    self.storage.inv[self.storage.mainhand].add_item(-1)
         else:
-            self.attacks = self.using.send_attack([self.x, self.y], self.points, dims, walls, screen)
-                
-            self.attack_counter += 1
-            if self.attack_counter >= self.using.duration:
-                self.attacks = []
-                self.attack_counter = 0
-                self.cooldown = self.using.cooldown
-        
-        if self.cooldown > 0:
             self.cooldown -= 1
+        
+        #update attacks
+        for nxt in self.attacks:
+            nxt.update((self.x, self.y), walls, screen)
+        
+        #delete attacks
+        removelist = []
+        for nxt in self.attacks:
+            if nxt.dur <= 0 or nxt.delete or len(nxt.hit) >= nxt.stats["penetration"]:
+                removelist.append(nxt)
+                if nxt.stats["on_end"] != "":
+                    self.attacks.append(nxt.on_end((self.x, self.y)))
+        for nxt in removelist:
+            self.attacks.remove(nxt)
+        removelist = []
 
     def attack_prototype(self, screen):
         #self.attackbox.x, self.attackbox.y = self.x+20, self.y+10

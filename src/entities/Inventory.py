@@ -22,9 +22,13 @@ class Cell():
         self.text = ""
 
         self.selected = False
+        self.mainhand = False
     
     def re_blit(self):
-        if self.selected:
+        #mainhand is true when blit and false right after to avoid having the inventory light up too
+        if self.mainhand:
+            self.surf.fill((255, 0, 0))
+        elif self.selected:
             self.surf.fill((0, 255, 255))
         else:
             self.surf.fill((69, 69, 69))
@@ -52,7 +56,10 @@ class Cell():
         self.count += count
         self.space -= self.stored.size * count
         #blit
-        self.re_blit()
+        if self.count == 0:
+            self.set_to(None)
+        else:
+            self.re_blit()
     
     def render(self, screen, xy):
         screen.blit(self.surf, (xy[0], xy[1]))
@@ -77,10 +84,19 @@ class Inventory():
         self.inv = [Cell() for i in range(43)]
         # selected is an index
         self.selected = -1
-        self.using = None
+        #mainhand is also an index
+        self.mainhand = 5
+        #mainhand has a resting index of 5 becuase by the time index 5 is rendered,
+        #it would be false again
 
         #click cooldown
         self.clicking = False
+    
+    def main_hand(self, pos):
+        if pos == self.mainhand:
+            self.mainhand = 5
+        else:
+            self.mainhand = pos
     
     def select(self, pos):
         #get actual coords
@@ -145,8 +161,13 @@ class Inventory():
 
         #always on screen
         screen.blit(self.button, ((1070, 580)))
+        #make mainhand light up but not in the inventory
+        self.inv[self.mainhand].mainhand = True
+        self.inv[self.mainhand].re_blit()
         for i in range(3):
             self.inv[i].render(screen, (815 + 85 * i, 590))
+        self.inv[self.mainhand].mainhand = False
+        self.inv[self.mainhand].re_blit()
         #if the inventory is open
         if self.status:
             screen.blit(self.inventframe, (180, 67))

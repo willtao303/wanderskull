@@ -1,5 +1,6 @@
 import src.entities.algorithms.pathfind as pf
 import pygame
+import random
 import math
 
 class Enemy():
@@ -34,9 +35,14 @@ class Enemy():
 
         self.knock_back = 0
         self.knock_back_angle = 0
+        self.knockback_total = 0
 
         #health
         self.health = 100
+
+        #id
+        # generate an id from number 1 to 1000000000
+        self.id = random.randint(1, 1000000000)
 
     def startup(self, ppos: tuple((float, float)), room):
         self.path = self.pathfind(ppos,room)
@@ -133,7 +139,7 @@ class Enemy():
         if self.knock_back > 0:
             chx, chy = math.cos(self.knock_back_angle)*self.knock_back, math.sin(self.knock_back_angle)*self.knock_back
             self.moveVectorx , self.moveVectory = chx, chy
-            self.knock_back -= 1.5
+            self.knock_back -= self.knockback_total * 0.1
         elif 60 < math.sqrt((self.rect.x - self.enemy_pos[0])**2 + (self.rect.y - self.enemy_pos[1])**2):
             self.moveVectorx, self.moveVectory = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
         else:
@@ -224,10 +230,13 @@ class Enemy():
     def update(self, room, ppos, player):
         
         #check for attacks
-        if self.rect.collidelist(player.attacks) != -1 and self.knock_back == 0:
-            self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
-            self.knock_back = 15
-            self.health -= player.using.damage
+        for nxt in player.attacks:
+            if (not(self.id in nxt.hit)) and self.rect.collidelist(nxt.attacks) != -1 and int(self.knock_back) == 0:
+                self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
+                self.knock_back = nxt.stats["knockback"]
+                self.knockback_total = nxt.stats["knockback"]
+                self.health -= nxt.stats["damage"]
+                nxt.hit.add(self.id)
 
         self.antiwall(room)
         #if the position of the player is less than 50, move

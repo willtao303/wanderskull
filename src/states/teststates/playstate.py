@@ -7,6 +7,7 @@ from src.entities.testenemymedium import Enemy
 from src.tests.rooms.room import Room
 from src.entities.Item import item_library
 from src.entities.Item import Item
+from src.entities.Attack import weapon_library
 from src.mouse import cursor
 import random
 import pygame
@@ -34,6 +35,7 @@ class PlayState():
         print("play: hello")
         for nxt in self.enemies:
             nxt.startup((player.x, player.y), roomlist[self.active])
+        player.storage.auto_fill(Item("staff", item_library["staff"]))
 
     def exit(self):
         print("play: bye")
@@ -49,6 +51,10 @@ class PlayState():
                 print(Room.printwithplayer(roomlist[self.active], player))
             if pygame.K_ESCAPE in keyspressed:
                 self.changeTo = "start"
+        
+        '''
+        ----------------- Player Clicking ------------------
+        '''
         
         #inventory - using screen height and width
         if cursor.Lclick and 1070  <= cursor.x <= 1190 and 580 <= cursor.y <= 670 and (not player.storage.clicking):
@@ -73,6 +79,16 @@ class PlayState():
             # div by 5 and then compare x = {61, 78, 95, 112, 129, 146, 163} y = {43, 60, 77, 94}
             player.storage.clicking = True
             player.storage.select((cursor.x//5, cursor.y//5))
+        elif player.storage.clicking and not cursor.Lclick:
+            player.storage.clicking = False
+        
+        #player switching primary mainhand weapon.
+        if ((not player.storage.status) and cursor.Lclick and 815 <= cursor.x <= 1070 and 590 <= cursor.y <= 670 and 
+        (not (cursor.x//5 in {180, 197})) and (not player.storage.clicking)):
+            player.storage.clicking = True
+            player.storage.main_hand((cursor.x-815)//85)
+            if player.storage.mainhand != 5 and player.storage.inv[player.storage.mainhand].stored != None and player.storage.inv[player.storage.mainhand].stored.type == "weapon":
+                player.cooldown = weapon_library[player.storage.inv[player.storage.mainhand].stored.name]["cooldown"]
         elif player.storage.clicking and not cursor.Lclick:
             player.storage.clicking = False
         
@@ -107,12 +123,11 @@ class PlayState():
                 nxt.update(roomlist[self.active], (player.x+24, player.y+24), player)
                 if nxt.health <= 0:
                     removelist.append(nxt)
-                    self.drops.append(Item("spear", item_library["spear"]))
-                    self.drops[-1].rect.x = random.randint(nxt.x-17, nxt.x+18)
-                    self.drops[-1].rect.y = random.randint(nxt.y-17, nxt.y+18)
-                    self.drops.append(Item("bomb", item_library["bomb"]))
-                    self.drops[-1].rect.x = random.randint(nxt.x-17, nxt.x+18)
-                    self.drops[-1].rect.y = random.randint(nxt.y-17, nxt.y+18)
+                    for i in range(random.randint(1, 2)):
+                        it = random.randint(0, len(item_library["all"])-1)
+                        self.drops.append(Item(item_library["all"][it], item_library[item_library["all"][it]]))
+                        self.drops[-1].rect.x = random.randint(nxt.x-17, nxt.x+18)
+                        self.drops[-1].rect.y = random.randint(nxt.y-17, nxt.y+18)
             #removing dead enemies
             for nxt in removelist:
                 self.enemies.remove(nxt)

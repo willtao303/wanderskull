@@ -1,10 +1,13 @@
 import pygame
 import math
 
-item_library = {
+item_library = { 
+    "all": ["sword", "spear", "bomb", "bow", "staff"],
     "sword": ["weapon", 24, 'src/tests/images/wepons/plat-sword.png'],
     "spear": ["weapon", 24, 'src/tests/images/wepons/plat-spear.png'],
-    "bomb": ["weapon", 3, 'src/tests/images/wepons/bombs.png']
+    "bomb": ["consumable_weapon", 3, 'src/tests/images/wepons/bombs.png'],
+    "bow": ["weapon", 24, 'src/tests/images/wepons/bow.png'],
+    "staff": ["weapon", 24, 'src/tests/images/wepons/staff.png']
 }
 
 class Item():
