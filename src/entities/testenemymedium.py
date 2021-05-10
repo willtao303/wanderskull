@@ -2,6 +2,8 @@ import src.entities.algorithms.pathfind as pf
 import pygame
 import random
 import math
+from src.entities.Item import Item, item_library
+from src.entities.Attack import Attack, weapon_library
 
 class Enemy():
     def __init__(self, pos: tuple((float, float))):
@@ -36,6 +38,10 @@ class Enemy():
         self.knock_back = 0
         self.knock_back_angle = 0
         self.knockback_total = 0
+        it = item_library["all"][random.randint(0, len(item_library["all"])-1)]
+        self.weapon = Item(it, item_library[it])
+        self.attacks = []
+        self.cooldown = 0
 
         #health
         self.health = 100
@@ -140,7 +146,7 @@ class Enemy():
             chx, chy = math.cos(self.knock_back_angle)*self.knock_back, math.sin(self.knock_back_angle)*self.knock_back
             self.moveVectorx , self.moveVectory = chx, chy
             self.knock_back -= self.knockback_total * 0.1
-        elif 60 < math.sqrt((self.rect.x - self.enemy_pos[0])**2 + (self.rect.y - self.enemy_pos[1])**2):
+        elif 45+weapon_library[self.weapon.name]["range"] < math.sqrt((self.x- self.enemy_pos[0])**2 + (self.y - self.enemy_pos[1])**2):
             self.moveVectorx, self.moveVectory = (int(math.cos(-math.radians(angle))*self.speed), int(math.sin(-math.radians(angle))*self.speed))
         else:
             self.moveVectorx, self.moveVectory = 0, 0
@@ -229,10 +235,15 @@ class Enemy():
 
     def update(self, room, ppos, player):
         
+        self.enemy_pos = [player.x, player.y]
         #check for attacks
         for nxt in player.attacks:
-            if (not(self.id in nxt.hit)) and self.rect.collidelist(nxt.attacks) != -1 and int(self.knock_back) == 0:
-                self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
+            idx = self.rect.collidelist(nxt.attacks)
+            if (not(self.id in nxt.hit)) and idx != -1 and int(self.knock_back) == 0:
+                if nxt.stats["mainclass"] == "AOE":
+                    self.knock_back_angle = math.atan2(self.rect.y-nxt.attacks[idx].y, self.rect.x-nxt.attacks[idx].x)
+                else:
+                    self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
                 self.knock_back = nxt.stats["knockback"]
                 self.knockback_total = nxt.stats["knockback"]
                 self.health -= nxt.stats["damage"]
@@ -289,11 +300,56 @@ class Enemy():
         
         #self.x = self.rect.x
         #self.y = self.rect.y
+
+        # attack
+
+    
+    def attack(self, screen, room, player, offset):
+
+        if 45+weapon_library[self.weapon.name]["range"] >= math.sqrt((self.x - player.x)**2 + (self.y - player.y)**2) and self.knock_back <= 0:
+            if self.cooldown == 0: #move this later
+                #do the aiming stuff
+                angle = math.atan2(player.y-self.y, player.x-self.x)
+                points = {
+                    "chx":math.cos(angle), "chy":math.sin(angle), "angle":angle
+                }
+                #send the attack
+                name = self.weapon.name
+                if weapon_library[self.weapon.name]["mainclass"] == "AOE":
+                    # splash takes in target location as the screen location
+                    self.attacks.append(Attack(name, (255, 0, 0), weapon_library[name], points, (player.x, player.y), (self.x, self.y), (600+random.randint(-100, 100), 337+random.randint(-100, 100)), (1200, 675)))
+                    #self.attacks.append(Attack(name, (255, 0, 0), weapon_library[name], points, (player.x, player.y), (self.x, self.y), (600, 337), (1200, 675)))
+                else:
+                    self.attacks.append(Attack(name, (255, 0, 0), weapon_library[name], points, (player.x, player.y), (self.x, self.y), (player.x, player.y), (1200, 675)))
+                #cooldown
+                self.cooldown = weapon_library[name]["cooldown"] * 3
+                #if self.storage.inv[self.storage.mainhand].stored.type == "consumable_weapon":
+                #    self.storage.inv[self.storage.mainhand].add_item(-1)
+            else:
+                self.cooldown -= 1
         
-    def render(self, screen, offset):
+            #update attacks
+            #((self.y+25-offset[1])*2, (self.x+25-offset[0])*2)
+            for nxt in self.attacks:
+                nxt.update((player.x, player.y),(self.x, self.y), room.walls, screen, (675, 1200))
+        
+            #delete attacks
+            removelist = []
+            for nxt in self.attacks:
+                if nxt.dur <= 0 or nxt.delete or len(nxt.hit) >= nxt.stats["penetration"]:
+                    removelist.append(nxt)
+                    if nxt.stats["on_end"] != "":
+                        self.attacks.append(nxt.on_end((self.x, self.y), (player.x, player.y)))
+            for nxt in removelist:
+                self.attacks.remove(nxt)
+            removelist = []
+        
+    def render(self, screen, offset, room, player):
         #pygame.draw.rect(screen, self.color, self.rect)
         # draw line between (self.x[0]+25, self.x[1]+25) and ppos
         screen.blit(self.sprite, (self.x-offset[0], self.y-offset[1]))
         for i in self.path:
             screen.blit(self.surf, (i[0]-offset[0], i[1]-offset[1]))
+        
+        self.attack(screen, room, player, offset)
         

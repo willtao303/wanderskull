@@ -22,7 +22,7 @@ class PlayState():
     def __init__(self):
         self.changeTo = None
         self.paused = False
-        self.enemies = [Enemy((5, 5)) for _ in range(16)]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
+        self.enemies = [Enemy((5, 5)) for _ in range(10)]#[Enemy((1,1)), Enemy((2,2)), Enemy((3, 3))]
         self.enemy_pos = [(1, 1), (2, 2)] #useless right now
         self.active = 0
         self.acts = (roomlist[0].spx, roomlist[0].spy)
@@ -110,12 +110,15 @@ class PlayState():
 
             roomlist[self.active].update()
 
+            enemyattacks = []
+
             for nxt in self.enemies: # keep it separate for object collision
                 roomlist[self.active].roomcollision(nxt)
+                enemyattacks = enemyattacks + nxt.attacks
 
             roomlist[self.active].roomcollision(player)
-            
-            player.update()
+
+            player.update(enemyattacks)
 
             removelist = []
             for nxt in self.enemies:
@@ -204,7 +207,7 @@ class PlayState():
             
             roomlist[self.active].autocorrections(player) #switched
             for nxt in self.enemies:
-                nxt.render(screen, offset)
+                nxt.render(screen, offset, roomlist[self.active], player)
 
             if roomlist[self.active].doorsclosed:
                 cur_wall = set(roomlist[self.active].staticwalls+roomlist[self.active].doors)

@@ -49,7 +49,6 @@ while running:
     state.update(keyspressed, keysdown)
     gameDisplay.fill((20, 20, 20))
     state.render(gameDisplay, screen_height, screen_width)
-
     pygame.display.update()
     clock.tick(60)
 

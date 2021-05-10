@@ -1,10 +1,10 @@
 import pygame
 import math
 from src.mouse import cursor
-from src.entities.Attack import Attack
-from src.entities.Attack import weapon_library
+from src.entities.Attack import Attack, weapon_library
 from src.entities.Inventory import Inventory, Cell
 from src.entities.Item import Item
+from src.entities.Healthbar import Healthbar
 #phd = placeholder
 
 class main_player(pygame.sprite.Sprite):
@@ -24,27 +24,7 @@ class main_player(pygame.sprite.Sprite):
         self.collide = None
         self.moving = False
 
-        #health
-
-        self.max_health = 100 #all of this just for a health bar
-        self.health =  100
-        self.health_bar = pygame.Surface((400, 30))
-        self.health_bar_show = pygame.Surface((400, 30))
-        self.health_bar.fill((0,255,0))
-        self.health_bar_show.fill((255, 0 ,0))
-        self.health_loss = 0
-        self.health_loss_bar = None
-
-        #mana
-
-        self.max_mana = 100 #set up for mana
-        self.mana = 100
-        self.mana_bar = pygame.Surface((400, 30))
-        self.mana_bar_show = pygame.Surface((400, 30))
-        self.mana_bar.fill((0, 0, 255))
-        self.mana_bar_show.fill((255, 255, 0))
-        self.mana_loss = 0
-        self.mana_loss_bar = None
+        self.healthbar = Healthbar(1000)
 
         #attack
 
@@ -54,12 +34,30 @@ class main_player(pygame.sprite.Sprite):
         #inventory
 
         self.storage = Inventory()
+
+        #player id
+        self.id = 1
     
     def firstframe(self):
         #insert json get stuff here
         self.box = pygame.Rect((self.x, self.y),(self.height, self.width))
 
-    def update(self):
+    def update(self, enemyattacks):
+
+        #attack detection
+
+        for nxt in enemyattacks:
+            idx = self.box.collidelist(nxt.attacks)
+            if (not(self.id in nxt.hit)) and idx != -1:
+                #if nxt.stats["mainclass"] == "AOE":
+                #    self.knock_back_angle = math.atan2(self.rect.y-nxt.attacks[idx].y, self.rect.x-nxt.attacks[idx].x)
+                #else:
+                #    self.knock_back_angle = math.atan2(self.rect.y-player.y, self.rect.x-player.x)
+                #self.knock_back = nxt.stats["knockback"]
+                #self.knockback_total = nxt.stats["knockback"]
+                self.healthbar.health -= nxt.stats["damage"]
+                nxt.hit.add(self.id)
+
         #movement
         self.x = self.box.x
         self.y = self.box.y
@@ -117,22 +115,16 @@ class main_player(pygame.sprite.Sprite):
 
         self.box.move_ip(moveVectorx, moveVectory)
 
+        self.healthbar.update()
+
 
     def render(self, screen, dims, walls):
         #pygame.draw.rect(screen, (0,255,255), self.box)
         screen.blit(self.sprite, ((dims[1]/2)-25+cursor.mouseoffset[0],(dims[0]/2)-25+cursor.mouseoffset[1]))
         self.attack(screen, dims, walls)
+        #pygame.draw.rect(screen, (255, 255, 0), self.box)
+        self.healthbar.render(screen)
 
-        #health
-        screen.blit(self.health_bar_show, (400, 550))
-        screen.blit(self.health_bar, (400, 550))
-        #if self.health_loss > 0:
-        #    screen.blit(self.health_loss_bar, (int(400*(self.health/self.max_health))+400, 550))#change bounds
-        '''mana'''
-        screen.blit(self.mana_bar_show, (400, 600))
-        screen.blit(self.mana_bar, (400, 600))
-        #if self.mana_loss > 0:
-        #    screen.blit(self.mana_loss_bar, (int(400*(self.mana/self.max_mana))+400, 700))#change bounds
 
     def attack(self, screen, dims, walls):
 
@@ -156,7 +148,7 @@ class main_player(pygame.sprite.Sprite):
                 }
                 #send the attack
                 name = self.storage.inv[self.storage.mainhand].stored.name
-                self.attacks.append(Attack(name, weapon_library[name], points, (self.x, self.y), (cursor.x, cursor.y), dims))
+                self.attacks.append(Attack(name, (0, 255, 255), weapon_library[name], points, (self.x, self.y), (self.x, self.y), (cursor.x+5, cursor.y+5), dims))
                 #cooldown
                 self.cooldown = weapon_library[name]["cooldown"]
                 if self.storage.inv[self.storage.mainhand].stored.type == "consumable_weapon":
@@ -166,7 +158,7 @@ class main_player(pygame.sprite.Sprite):
         
         #update attacks
         for nxt in self.attacks:
-            nxt.update((self.x, self.y), walls, screen)
+            nxt.update((self.x, self.y), (self.x, self.y), walls, screen, dims)
         
         #delete attacks
         removelist = []
@@ -174,7 +166,7 @@ class main_player(pygame.sprite.Sprite):
             if nxt.dur <= 0 or nxt.delete or len(nxt.hit) >= nxt.stats["penetration"]:
                 removelist.append(nxt)
                 if nxt.stats["on_end"] != "":
-                    self.attacks.append(nxt.on_end((self.x, self.y)))
+                    self.attacks.append(nxt.on_end((self.x, self.y), (player.x, player.y)))
         for nxt in removelist:
             self.attacks.remove(nxt)
         removelist = []
