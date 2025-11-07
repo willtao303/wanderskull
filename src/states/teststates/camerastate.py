@@ -1,4 +1,4 @@
-from src.tests.rooms.room import Room
+from src.sandbox.rooms.room import Room
 from src.mouse import cursor
 import pygame
 

@@ -3,11 +3,11 @@ import math
 
 item_library = { 
     "all": ["sword", "spear", "bomb", "bow", "staff"],
-    "sword": ["weapon", 24, 'src/tests/images/wepons/plat-sword.png'],
-    "spear": ["weapon", 24, 'src/tests/images/wepons/plat-spear.png'],
-    "bomb": ["consumable_weapon", 3, 'src/tests/images/wepons/bombs.png'],
-    "bow": ["weapon", 24, 'src/tests/images/wepons/bow.png'],
-    "staff": ["weapon", 24, 'src/tests/images/wepons/staff.png']
+    "sword": ["weapon", 24, 'src/lib/images/temp/wepons/plat-sword.png'],
+    "spear": ["weapon", 24, 'src/lib/images/temp/wepons/plat-spear.png'],
+    "bomb": ["consumable_weapon", 3, 'src/lib/images/temp/wepons/bombs.png'],
+    "bow": ["weapon", 24, 'src/lib/images/temp/wepons/bow.png'],
+    "staff": ["weapon", 24, 'src/lib/images/temp/wepons/staff.png']
 }
 
 class Item():

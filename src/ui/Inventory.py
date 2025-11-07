@@ -1,4 +1,4 @@
-from src.entities.Item import Item
+from src.entities.items.Item import Item
 import pygame
 import math
 
@@ -16,7 +16,7 @@ class Cell():
         self.surf.fill((69, 69, 69))
         self.surf.set_colorkey((69, 69, 69))
         #blit the image on
-        self.frameimage = pygame.image.load('src/tests/images/wepons/select.png')
+        self.frameimage = pygame.image.load('src/lib/images/temp/wepons/select.png')
         self.surf.blit(pygame.transform.scale(self.frameimage, (75, 75)), (2.5, 2.5))
         self.font = pygame.font.Font("src/lib/fonts/pixelmix.ttf", 15)
         self.text = ""
@@ -72,7 +72,8 @@ class Inventory():
         self.status = False
 
         #pics
-        self.itemframe = pygame.image.load('src/tests/images/wepons/select.png')
+        self.itemframe = pygame.image.load('src/lib/images/temp/wepons/select.png')
+        self.itemframe = pygame.image.load('src/lib/images/temp/wepons/select.png')
         self.itemframe = pygame.transform.scale(self.itemframe, (80, 80))
         self.inventframe = pygame.transform.scale(self.itemframe,(864, 540))
 

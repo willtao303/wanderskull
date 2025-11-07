@@ -1,17 +1,9 @@
 # wanderskull
 
-idk most cool games have this file so why not lol
-
-Oi
-Read me is updated a lot
+we are so back
 
 keybind for multiline comment/uncomment: {ctrl or cmd} + /
 
-:D
-
-zipline studios :DD
-
-:))
 
 ## Current list of (known) bugs
 

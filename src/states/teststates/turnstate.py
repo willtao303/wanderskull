@@ -10,7 +10,7 @@ class TurnState():
          self.changeTo = None
 
          self.x, self.y = 300, 300
-         self.surf = pygame.image.load('src/tests/images/sample image.png')
+         self.surf = pygame.image.load('src/lib/images/temp/sample image.png')
          self.angle = 0.0
          self.attack = False
 

@@ -1,7 +1,7 @@
 import pygame
 import math
 import random as rand
-import src.entities.algorithms.pathfind as pf
+import src.entities.behaviours.pathfind as pf
 from src.mouse import cursor
 
 
@@ -14,12 +14,12 @@ class attacker():
         self.cooldown = 0
         self.speed = 3
         self.inventory = [
-            {"id":"sword", "attacklen":15, "image":pygame.image.load('src/tests/images/wepons/plat-sword.png'), "range":50},
-            {"id":"spear", "attacklen":30, "image":pygame.image.load('src/tests/images/wepons/plat-spear.png'), "range":80},
+            {"id":"sword", "attacklen":15, "image":pygame.image.load('src/lib/images/temp/wepons/plat-sword.png'), "range":50},
+            {"id":"spear", "attacklen":30, "image":pygame.image.load('src/lib/images/temp/wepons/plat-spear.png'), "range":80},
             {"id":"hammer", "attacklen":40, "image":None,"range":80},
-            {"id":"radial", "attacklen":20, "image":pygame.image.load('src/tests/images/wepons/bombs.png'),"range":80}]
+            {"id":"radial", "attacklen":20, "image":pygame.image.load('src/lib/images/temp/wepons/bombs.png'),"range":80}]
         self.slotnumber = 0
-        self.itemframe = pygame.image.load('src/tests/images/wepons/select.png')
+        self.itemframe = pygame.image.load('src/lib/images/temp/wepons/select.png')
         self.max_health = 100
         self.health =  100
         self.health_bar = pygame.Surface((400, 30))

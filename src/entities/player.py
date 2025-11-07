@@ -2,9 +2,9 @@ import pygame
 import math
 from src.mouse import cursor
 from src.entities.Attack import Attack, weapon_library
-from src.entities.Inventory import Inventory, Cell
-from src.entities.Item import Item
-from src.entities.Healthbar import Healthbar
+from src.ui.Inventory import Inventory, Cell
+from src.entities.items.Item import Item
+from src.ui.health_bar import Healthbar
 #phd = placeholder
 
 class main_player(pygame.sprite.Sprite):
@@ -12,7 +12,7 @@ class main_player(pygame.sprite.Sprite):
         self.height, self.width = 50, 50
         self.x, self.y = (1*50, 1*50)
 
-        self.sprite = pygame.Surface((50,50)) #pygame.image.load('src/tests/images/sample image.png')
+        self.sprite = pygame.Surface((50,50)) #pygame.image.load('src/lib/images/temp/sample image.png')
         self.sprite.fill((0,255,255))
         self.box = None
         self.canGo = {"down":True, "up":True, "left":True, "right":True}

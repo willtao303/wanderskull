@@ -1,8 +1,8 @@
-import src.entities.algorithms.pathfind as pf
+import src.entities.behaviours.pathfind as pf
 import pygame
 import random
 import math
-from src.entities.Item import Item, item_library
+from src.entities.items.Item import Item, item_library
 from src.entities.Attack import Attack, weapon_library
 
 class Enemy():

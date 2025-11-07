@@ -1,11 +1,13 @@
 #import roomtypes
-import src.entities.algorithms.pathfind as pf
+import src.entities.behaviours.pathfind as pf
 import random as rand
 import math
 import pygame
+import warnings
 
 class Room():
     def __init__(self, pos, wallist, doorlist, startpoint):
+        warnings.warn("old", DeprecationWarning)
         self.w, self.h = pos
         self.graph = dict()
         self.staticwalls = wallist
