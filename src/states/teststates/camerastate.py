@@ -1,9 +1,9 @@
-from src.sandbox.rooms.room import Room
+from src.world.room import Room
 from src.mouse import cursor
 import pygame
 
 
-room = Room((40, 50), [(3,6), (3,5), (3,4), (6,6), (6,7), (6,5), (6,4), (9,8), (9,6)], [], (0,0))
+room = Room.from_str("")
 
 class CameraState():
     def __init__(self):
@@ -13,11 +13,11 @@ class CameraState():
         self.speed = 4
     def enter(self):
         #before 1st frame, mainly for initializing things
-        print("name: hello")
+        print("enter state: camera")
 
     def exit(self):
         #before last frame, for saving things and making sure things dont break
-        print("play: bye")
+        print("exit state: camera")
         self.changeTo = None
 
     def update(self, keyspressed, keysdown):

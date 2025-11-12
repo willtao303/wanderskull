@@ -37,5 +37,11 @@ class Camera:
     def renderlpos(self, pos: tuple[int, int], dims: tuple[int, int]) -> tuple[int, int]:
         return (self.width + (pos[0] - dims[0]), self.height + (pos[0] - dims[0]))
 
+    # sets an offset
     def set_offset(self, key, pos):
         self.offsets[key] = pos
+    
+    # modifies an offset
+    def add_offset(self, key, dpos: tuple[int, int]):
+        self.offsets[key][0] += dpos[0]
+        self.offsets[key][1] += dpos[1]
