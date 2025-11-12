@@ -19,7 +19,7 @@ we are so back
       - get a* down
       - figure out when to run and how to store results
     - enm-enm, enm-env
-  - lore 
+  - lore
     - figure out enemy-enemy and enemy-enviroment interactions
 </details>
 <details><summary>modular attack system</summary>
@@ -77,3 +77,10 @@ we are so back
 
 #### We all start somewhere
 keybind for multiline comment/uncomment: {ctrl or cmd} + /
+
+To install dependencies, use `make install`
+
+To build, use `make build`
+---
+
+Repository initiated with [fpgmaas/cookiecutter-uv](https://github.com/fpgmaas/cookiecutter-uv).

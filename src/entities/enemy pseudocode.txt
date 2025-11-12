@@ -1,9 +1,0 @@
-
-
-
-teleporting:
-    get random number between 0, 360
-    get a list of points along that angle traversing from player til it hits a wall
-    remove the first 10 items from list (to create a safe area the enemy wont teleport into), if list not big enough restart
-    teleport to a random position in the list
-    
